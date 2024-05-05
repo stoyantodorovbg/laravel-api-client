@@ -1,6 +1,6 @@
 <?php
 
-namespace Stoyantodorov\ApiClient\Enum;
+namespace Stoyantodorov\ApiClient\Enums;
 
 enum HttpRequestFormat: string
 {

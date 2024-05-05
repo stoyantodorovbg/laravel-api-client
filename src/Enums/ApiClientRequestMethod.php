@@ -1,8 +1,8 @@
 <?php
 
-namespace Stoyantodorov\ApiClient\Enum;
+namespace Stoyantodorov\ApiClient\Enums;
 
-enum RequestMethod: string
+enum ApiClientRequestMethod: string
 {
     case GET = 'get';
 
