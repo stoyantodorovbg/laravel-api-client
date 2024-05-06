@@ -13,6 +13,7 @@ use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
 use Stoyantodorov\ApiClient\Enums\HttpMethod;
 use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
 use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
+use function PHPUnit\Framework\matches;
 
 class ApiClient implements ApiClientInterface
 {
@@ -75,30 +76,30 @@ class ApiClient implements ApiClientInterface
     }
 
     public function send(
-        HttpMethod             $httpMethod,
-        string                 $url,
-        array                  $options = [],
-        HttpRequestFormat|null $format = null,
-    ): Response
+        HttpMethod        $httpMethod,
+        string            $url,
+        HttpRequestFormat $format,
+        array             $options = [],
+    ): Response|null
     {
         return $this->sendRequest(
             apiClientRequestMethod: ApiClientRequestMethod::SEND,
             url: $url,
-            options: $this->requestOptions($options, $httpMethod, $format),
+            options: [$format->value => $options],
             httpMethod: $httpMethod,
         );
     }
 
     public function head(string $url, array $parameters = [],): Response|null
     {
-        $this->addPendingRequestMethod(PendingRequestMethod::WITH_QUERY_PARAMETERS, compact('parameters'));
+        $this->addPendingRequestMethod(PendingRequestMethod::WITH_QUERY_PARAMETERS, [$parameters]);
 
         return $this->sendRequest(ApiClientRequestMethod::HEAD, $url);
     }
 
     public function get(string $url, array $parameters = [],): Response|null
     {
-        $this->addPendingRequestMethod(PendingRequestMethod::WITH_QUERY_PARAMETERS, compact('parameters'));
+        $this->addPendingRequestMethod(PendingRequestMethod::WITH_QUERY_PARAMETERS, [$parameters]);
 
         return $this->sendRequest(ApiClientRequestMethod::GET, $url);
     }
@@ -131,9 +132,9 @@ class ApiClient implements ApiClientInterface
     ): Response|null
     {
         try {
-            return $this->getResponse($apiClientRequestMethod, $url, $options, true);
+            return $this->getResponse($apiClientRequestMethod, $url, $options, $httpMethod, true);
         } catch (RequestException $exception) {
-            $method = $httpMethod ?? strtoupper($apiClientRequestMethod->value);
+            $method = $httpMethod ? $httpMethod->value : strtoupper($apiClientRequestMethod->value);
 
             return $this->processRequestException($exception, "Failed HTTP {$method} request to {$url}");
         } catch (ConnectionException $e) {
@@ -142,14 +143,21 @@ class ApiClient implements ApiClientInterface
     }
 
     public function getResponse(
-        ApiClientRequestMethod $requestMethod,
+        ApiClientRequestMethod $apiClientMethod,
         string $url,
         array $options = [],
+        HttpMethod|null $httpMethod = null,
         bool $throw  = false,
     ): Response
     {
-        $methodToUse = $requestMethod->value;
-        $response = $this->pendingRequest ? $this->pendingRequest->{$methodToUse}($url, $options) : Http::$methodToUse($url, $options);
+        $methodToUse = $apiClientMethod->value;
+        $parameters = match ($apiClientMethod) {
+            ApiClientRequestMethod::SEND => [$httpMethod->value, $url, $options],
+            default => [$url, $options],
+        };
+        $response = $this->pendingRequest ?
+            $this->pendingRequest->{$methodToUse}(...$parameters) :
+            Http::$methodToUse(...$parameters);
 
         return $throw ? $response->throw() : $response;
     }
@@ -192,14 +200,5 @@ class ApiClient implements ApiClientInterface
             HttpMethod::HEAD, HttpMethod::GET => HttpRequestFormat::QUERY->value,
             default => $format->value,
         };
-    }
-
-    protected function requestOptions(array $options, HttpMethod $method, HttpRequestFormat|null $format): array
-    {
-        if ($options) {
-            return [$this->getRequestFormat($method, $format) => $options];
-        }
-
-        return [];
     }
 }

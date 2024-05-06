@@ -7,6 +7,6 @@ enum HttpRequestFormat: string
     case QUERY = 'query';
     case BODY = 'body';
     case JSON = 'json';
-    case FORM = 'form_params';
+    case FORM_PARAMS = 'form_params';
     case MULTIPART = 'multipart';
 }

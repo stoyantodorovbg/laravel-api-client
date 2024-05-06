@@ -75,18 +75,18 @@ interface ApiClientInterface
      * Send a request with given HTTP method, url, options HTTP request format
      * When there is no existing PendingRequest instance, new one is created
      *
-     * @param HttpMethod             $httpMethod
-     * @param string                 $url
-     * @param array                  $options
-     * @param HttpRequestFormat|null $format
-     * @return Response
+     * @param HttpMethod        $httpMethod
+     * @param string            $url
+     * @param HttpRequestFormat $format
+     * @param array             $options
+     * @return Response|null
      */
     public function send(
-        HttpMethod             $httpMethod,
-        string                 $url,
-        array                  $options = [],
-        HttpRequestFormat|null $format = null
-    ): Response;
+        HttpMethod        $httpMethod,
+        string            $url,
+        HttpRequestFormat $format,
+        array             $options = [],
+    ): Response|null;
 
     /**
      * Send HEAD request
@@ -169,17 +169,20 @@ interface ApiClientInterface
      * Get a response without error handling and event triggering
      * Throw RequestException when throw is true
      *
-     * @param ApiClientRequestMethod $requestMethod
+     * @param ApiClientRequestMethod $apiClientMethod
      * @param string                 $url
      * @param array                  $options
+     * @param HttpMethod|null        $httpMethod
      * @param bool                   $throw
      * @return Response
      */
     public function getResponse(
-        ApiClientRequestMethod $requestMethod,
+        ApiClientRequestMethod $apiClientMethod,
         string $url,
         array $options = [],
+        HttpMethod|null $httpMethod = null,
         bool $throw = false,
+
     ): Response;
 
     /**
