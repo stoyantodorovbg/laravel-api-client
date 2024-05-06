@@ -91,12 +91,16 @@ class ApiClient implements ApiClientInterface
 
     public function head(string $url, array $parameters = [],): Response|null
     {
-        return $this->sendRequest(ApiClientRequestMethod::HEAD, $url, $parameters);
+        $this->addPendingRequestMethod(PendingRequestMethod::WITH_QUERY_PARAMETERS, compact('parameters'));
+
+        return $this->sendRequest(ApiClientRequestMethod::HEAD, $url);
     }
 
     public function get(string $url, array $parameters = [],): Response|null
     {
-        return $this->sendRequest(ApiClientRequestMethod::GET, $url, $parameters);
+        $this->addPendingRequestMethod(PendingRequestMethod::WITH_QUERY_PARAMETERS, compact('parameters'));
+
+        return $this->sendRequest(ApiClientRequestMethod::GET, $url);
     }
 
     public function post(string $url, array $body = []): Response|null
@@ -145,7 +149,7 @@ class ApiClient implements ApiClientInterface
     ): Response
     {
         $methodToUse = $requestMethod->value;
-        $response = $this->pendingRequest ? $this->pendingRequest->$methodToUse($url, $options) : Http::$methodToUse($url, $options);
+        $response = $this->pendingRequest ? $this->pendingRequest->{$methodToUse}($url, $options) : Http::$methodToUse($url, $options);
 
         return $throw ? $response->throw() : $response;
     }
@@ -160,10 +164,10 @@ class ApiClient implements ApiClientInterface
         $method = $pendingRequestMethod->value;
 
         if ($newPendingRequest || ! $this->pendingRequest) {
-            return Http::$method(...$parameters);
+            return Http::{$method}(...$parameters);
         }
 
-        return $this->pendingRequest->$method(...$parameters);
+        return $this->pendingRequest->{$method}(...$parameters);
     }
 
     protected function processRequestException(RequestException $exception, string $message): Response

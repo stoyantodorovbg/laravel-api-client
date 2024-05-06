@@ -20,7 +20,7 @@ class DeleteTest extends TestCase
     /** @test */
     public function catches_request_exception(): void
     {
-        Http::fake([$this->url => Http::response(status: 500)]);
+        Http::fake(fn() => Http::response(status: 500));
 
         $response = ApiClient::delete($this->url);
         $this->assertInstanceOf(Response::class, $response);

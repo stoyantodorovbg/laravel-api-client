@@ -7,11 +7,10 @@ use GuzzleHttp\Promise\RejectedPromise;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
 use Stoyantodorov\ApiClient\Facades\ApiClient;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
-class SendRequestTest extends TestCase
+class PutTest extends TestCase
 {
     private string $url = 'https://dummy-host/test';
     private array $headers = ['Authentication' => 'Bearer 123'];
@@ -22,7 +21,7 @@ class SendRequestTest extends TestCase
     {
         Http::fake(fn() => Http::response(status: 500));
 
-        $response = ApiClient::sendRequest(ApiClientRequestMethod::GET, $this->url);
+        $response = ApiClient::put($this->url, $this->options);
         $this->assertInstanceOf(Response::class, $response);
     }
 
@@ -32,7 +31,7 @@ class SendRequestTest extends TestCase
     {
         Http::fake([$this->url => fn ($request) => new RejectedPromise(new ConnectException('Foo', $request->toPsrRequest()))]);
 
-        $response = ApiClient::sendRequest(ApiClientRequestMethod::GET, $this->url);
+        $response = ApiClient::put($this->url, $this->options);
         $this->AssertNull($response);
     }
 
@@ -41,7 +40,7 @@ class SendRequestTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::baseConfig(headers: $this->headers)->sendRequest(ApiClientRequestMethod::GET, $this->url);
+        ApiClient::baseConfig(headers: $this->headers)->put($this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authentication', 'Bearer 123'));
     }
 
@@ -50,28 +49,25 @@ class SendRequestTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
+        ApiClient::put($this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->url() === $this->url);
     }
 
     /** @test */
-    public function makes_a_request_with_provided_method(): void
+    public function uses_method_put(): void
     {
         Http::fake();
 
-        ApiClient::sendRequest(ApiClientRequestMethod::GET, $this->url);
-        Http::assertSent(fn (Request $request) => $request->method() === 'GET');
+        ApiClient::put($this->url, $this->options);
+        Http::assertSent(fn (Request $request) => $request->method() === 'PUT');
     }
 
     /** @test */
-    public function makes_a_request_with_provided_data(): void
+    public function sends_provided_data(): void
     {
         Http::fake();
 
-        ApiClient::sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
-        Http::assertSent(fn (Request $request) => $request->data() === $this->options);
-
-        ApiClient::sendRequest(ApiClientRequestMethod::GET, $this->url, $this->options);
+        ApiClient::put($this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->data() === $this->options);
     }
 }

@@ -19,7 +19,7 @@ class GetResponseTest extends TestCase
     /** @test */
     public function makes_a_request(): void
     {
-        Http::fake([$this->url => Http::response($this->fake200ResponseData)]);
+        Http::fake(fn() => Http::response($this->fake200ResponseData));
 
         $response = ApiClient::getResponse(ApiClientRequestMethod::GET, $this->url);
         $this->assertEquals(200, $response->getStatusCode());
@@ -29,7 +29,7 @@ class GetResponseTest extends TestCase
     /** @test */
     public function makes_a_request_with_the_configured_pending_request(): void
     {
-        Http::fake([$this->url => Http::response()]);
+        Http::fake();
 
         ApiClient::baseConfig(headers: $this->headers)->getResponse(ApiClientRequestMethod::GET, $this->url);
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authentication', 'Bearer 123'));
@@ -38,7 +38,7 @@ class GetResponseTest extends TestCase
     /** @test */
     public function throws_exceptions_depends_on_a_parameter(): void
     {
-        Http::fake([$this->url => Http::response(status: 500)]);
+        Http::fake(fn() => Http::response(status: 500));
 
         $this->expectException(RequestException::class);
         ApiClient::getResponse(ApiClientRequestMethod::GET, $this->url, throw: true);
