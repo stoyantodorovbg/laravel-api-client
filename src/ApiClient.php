@@ -16,7 +16,7 @@ use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
 
 class ApiClient implements ApiClientInterface
 {
-    protected PendingRequest|null $pendingRequest;
+    protected PendingRequest|null $pendingRequest = null;
 
     public function baseConfig(
         array $headers = [],
@@ -28,7 +28,7 @@ class ApiClient implements ApiClientInterface
         bool $newPendingRequest = true,
     ): self
     {
-        $this->pendingRequest = $this->getPendingRequest(
+        $this->pendingRequest = $this->pendingRequest(
                 pendingRequestMethod:  PendingRequestMethod::RETRY,
                 parameters: [$retries, $retryInterval],
                 newPendingRequest: $newPendingRequest,
@@ -44,17 +44,17 @@ class ApiClient implements ApiClientInterface
     public function addPendingRequestMethod(
         PendingRequestMethod $method,
         array $parameters = [],
-        bool $newPendingRequest = false
+        bool $newPendingRequest = false,
     ): self
     {
-        $this->pendingRequest = $this->getPendingRequest($method, $parameters, $newPendingRequest);
+        $this->pendingRequest = $this->pendingRequest($method, $parameters, $newPendingRequest);
 
         return $this;
     }
 
     public function withBasicAuth(string $username, string $password): self
     {
-        $this->pendingRequest = $this->getPendingRequest(
+        $this->pendingRequest = $this->pendingRequest(
             pendingRequestMethod:  PendingRequestMethod::WITH_BASIC_AUTH,
             parameters: [$username, $password],
             newPendingRequest: false,
@@ -65,7 +65,7 @@ class ApiClient implements ApiClientInterface
 
     public function withDigestAuth(string $username, string $password): self
     {
-        $this->pendingRequest = $this->getPendingRequest(
+        $this->pendingRequest = $this->pendingRequest(
             pendingRequestMethod:  PendingRequestMethod::WITH_DIGEST_AUTH,
             parameters: [$username, $password],
             newPendingRequest: false,
@@ -78,14 +78,14 @@ class ApiClient implements ApiClientInterface
         HttpMethod             $httpMethod,
         string                 $url,
         array                  $options = [],
-        HttpRequestFormat|null $format = null
+        HttpRequestFormat|null $format = null,
     ): Response
     {
         $this->sendRequest(
             apiClientRequestMethod: ApiClientRequestMethod::SEND,
             url: $url,
             options: $this->requestOptions($options, $httpMethod, $format),
-            httpMethod: $httpMethod
+            httpMethod: $httpMethod,
         );
     }
 
@@ -127,7 +127,7 @@ class ApiClient implements ApiClientInterface
     ): Response|null
     {
         try {
-            return $this->getResponse($apiClientRequestMethod, $url, $options)->throw();
+            return $this->getResponse($apiClientRequestMethod, $url, $options, true);
         } catch (RequestException $exception) {
             $method = $httpMethod ?? strtoupper($apiClientRequestMethod->value);
 
@@ -137,18 +137,25 @@ class ApiClient implements ApiClientInterface
         }
     }
 
-    public function getResponse(ApiClientRequestMethod $requestMethod, string $url, array $options): Response
+    public function getResponse(
+        ApiClientRequestMethod $requestMethod,
+        string $url,
+        array $options = [],
+        bool $throw  = false,
+    ): Response
     {
         $methodToUse = $requestMethod->value;
+        $response = $this->pendingRequest ? $this->pendingRequest->$methodToUse($url, $options) : Http::$methodToUse($url, $options);
 
-        if (! $this->pendingRequest) {
-            return Http::$methodToUse($url, $options);
-        }
-
-        return $this->pendingRequest->$methodToUse($url, $options);
+        return $throw ? $response->throw() : $response;
     }
 
-    protected function getPendingRequest(PendingRequestMethod $pendingRequestMethod, array $parameters = [], bool $newPendingRequest = true): PendingRequest
+    public function getPendingRequest(): PendingRequest|null
+    {
+        return $this->pendingRequest;
+    }
+
+    protected function pendingRequest(PendingRequestMethod $pendingRequestMethod, array $parameters = [], bool $newPendingRequest = true): PendingRequest
     {
         $method = $pendingRequestMethod->value;
 

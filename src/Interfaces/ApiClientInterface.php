@@ -2,6 +2,8 @@
 
 namespace Stoyantodorov\ApiClient\Interfaces;
 
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
 use Stoyantodorov\ApiClient\Enums\HttpMethod;
@@ -165,11 +167,25 @@ interface ApiClientInterface
 
     /**
      * Get a response without error handling and event triggering
+     * Throw RequestException when throw is true
      *
      * @param ApiClientRequestMethod $requestMethod
      * @param string                 $url
      * @param array                  $options
+     * @param bool                   $throw
      * @return Response
      */
-    public function getResponse(ApiClientRequestMethod $requestMethod, string $url, array $options): Response;
+    public function getResponse(
+        ApiClientRequestMethod $requestMethod,
+        string $url,
+        array $options = [],
+        bool $throw = false,
+    ): Response;
+
+    /**
+     * Getter for pendingRequest property
+     *
+     * @return PendingRequest|null
+     */
+    public function getPendingRequest(): PendingRequest|null;
 }

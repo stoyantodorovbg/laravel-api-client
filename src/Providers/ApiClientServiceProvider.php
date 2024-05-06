@@ -1,18 +1,14 @@
 <?php
 
-namespace Stoyantodorov\ApiClient;
+namespace Stoyantodorov\ApiClient\Providers;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Stoyantodorov\ApiClient\Commands\ApiClientCommand;
 
 class ApiClientServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
-        $package
-            ->name('laravel-api-client')
-            ->hasConfigFile()
-            ->hasCommand(ApiClientCommand::class);
+        $package->name('laravel-api-client');
     }
 }
