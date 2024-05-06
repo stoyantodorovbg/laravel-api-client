@@ -161,7 +161,7 @@ interface ApiClientInterface
     public function sendRequest(
         ApiClientRequestMethod $apiClientRequestMethod,
         string                 $url,
-        array                  $options,
+        array                  $options = [],
         HttpMethod|null        $httpMethod = null,
     ): Response|null;
 

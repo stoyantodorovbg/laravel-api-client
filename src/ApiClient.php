@@ -81,7 +81,7 @@ class ApiClient implements ApiClientInterface
         HttpRequestFormat|null $format = null,
     ): Response
     {
-        $this->sendRequest(
+        return $this->sendRequest(
             apiClientRequestMethod: ApiClientRequestMethod::SEND,
             url: $url,
             options: $this->requestOptions($options, $httpMethod, $format),
@@ -91,38 +91,38 @@ class ApiClient implements ApiClientInterface
 
     public function head(string $url, array $parameters = [],): Response|null
     {
-        $this->sendRequest(ApiClientRequestMethod::HEAD, $url, $parameters);
+        return $this->sendRequest(ApiClientRequestMethod::HEAD, $url, $parameters);
     }
 
     public function get(string $url, array $parameters = [],): Response|null
     {
-        $this->sendRequest(ApiClientRequestMethod::GET, $url, $parameters);
+        return $this->sendRequest(ApiClientRequestMethod::GET, $url, $parameters);
     }
 
     public function post(string $url, array $body = []): Response|null
     {
-        $this->sendRequest(ApiClientRequestMethod::POST, $url, $body);
+        return $this->sendRequest(ApiClientRequestMethod::POST, $url, $body);
     }
 
     public function put(string $url, array $body = []): Response|null
     {
-        $this->sendRequest(ApiClientRequestMethod::PUT, $url, $body);
+        return $this->sendRequest(ApiClientRequestMethod::PUT, $url, $body);
     }
 
     public function patch(string $url, array $body = []): Response|null
     {
-        $this->sendRequest(ApiClientRequestMethod::PATCH, $url, $body);
+        return $this->sendRequest(ApiClientRequestMethod::PATCH, $url, $body);
     }
 
     public function delete(string $url, array $body = []): Response|null
     {
-        $this->sendRequest(ApiClientRequestMethod::DELETE, $url, $body);
+        return $this->sendRequest(ApiClientRequestMethod::DELETE, $url, $body);
     }
 
     public function sendRequest(
         ApiClientRequestMethod $apiClientRequestMethod,
         string                 $url,
-        array                  $options,
+        array                  $options = [],
         HttpMethod|null        $httpMethod = null,
     ): Response|null
     {

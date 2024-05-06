@@ -17,7 +17,7 @@ class GetResponseTest extends TestCase
     private array $fake200ResponseData = ['message' => 'Success'];
 
     /** @test */
-    public function make_a_request(): void
+    public function makes_a_request(): void
     {
         Http::fake([$this->url => Http::response($this->fake200ResponseData)]);
 
@@ -27,7 +27,7 @@ class GetResponseTest extends TestCase
     }
 
     /** @test */
-    public function make_a_request_with_the_configured_pending_request(): void
+    public function makes_a_request_with_the_configured_pending_request(): void
     {
         Http::fake([$this->url => Http::response()]);
 
