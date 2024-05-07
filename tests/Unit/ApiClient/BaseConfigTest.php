@@ -8,7 +8,7 @@ use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
 use Stoyantodorov\ApiClient\Enums\HttpMethod;
 use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
 use Stoyantodorov\ApiClient\Enums\PendingRequestMethod;
-use Stoyantodorov\ApiClient\Facades\ApiClient;
+use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class BaseConfigTest extends TestCase
@@ -23,7 +23,7 @@ class BaseConfigTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::baseConfig(headers: $this->headers)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(ApiClientInterface::class)->baseConfig(headers: $this->headers)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) =>
             $request->hasHeader('Authorization', 'Bearer 123') && $request->hasHeader('accept', 'application/json')
         );
@@ -34,7 +34,7 @@ class BaseConfigTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::baseConfig()->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(ApiClientInterface::class)->baseConfig()->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => $request->hasHeader('User-Agent', config('app.name')));
     }
 
@@ -44,7 +44,7 @@ class BaseConfigTest extends TestCase
         Http::fake();
 
         $userAgent = 'Custom Agent';
-        ApiClient::baseConfig(userAgent: $userAgent)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(ApiClientInterface::class)->baseConfig(userAgent: $userAgent)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => $request->hasHeader('User-Agent', $userAgent));
     }
 
@@ -53,7 +53,7 @@ class BaseConfigTest extends TestCase
     {
         Http::fake();
 
-        $client = ApiClient::addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token]);
+        $client = resolve(ApiClientInterface::class)->addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token]);
         $client->baseConfig(headers: ['accept' => 'application/json'], newPendingRequest: false)
             ->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) =>
@@ -66,7 +66,7 @@ class BaseConfigTest extends TestCase
     {
         Http::fake();
 
-        $client = ApiClient::addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token]);
+        $client = resolve(ApiClientInterface::class)->addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token]);
         $client->baseConfig(['accept' => 'application/json'])
             ->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) =>

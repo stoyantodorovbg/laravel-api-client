@@ -8,7 +8,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
-use Stoyantodorov\ApiClient\Facades\ApiClient;
+use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class SendRequestTest extends TestCase
@@ -22,7 +22,7 @@ class SendRequestTest extends TestCase
     {
         Http::fake(fn() => Http::response(status: 500));
 
-        $response = ApiClient::sendRequest(ApiClientRequestMethod::GET, $this->url);
+        $response = resolve(ApiClientInterface::class)->sendRequest(ApiClientRequestMethod::GET, $this->url);
         $this->assertInstanceOf(Response::class, $response);
     }
 
@@ -32,7 +32,7 @@ class SendRequestTest extends TestCase
     {
         Http::fake([$this->url => fn ($request) => new RejectedPromise(new ConnectException('Foo', $request->toPsrRequest()))]);
 
-        $response = ApiClient::sendRequest(ApiClientRequestMethod::GET, $this->url);
+        $response = resolve(ApiClientInterface::class)->sendRequest(ApiClientRequestMethod::GET, $this->url);
         $this->AssertNull($response);
     }
 
@@ -41,7 +41,7 @@ class SendRequestTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::baseConfig(headers: $this->headers)->sendRequest(ApiClientRequestMethod::GET, $this->url);
+        resolve(ApiClientInterface::class)->baseConfig(headers: $this->headers)->sendRequest(ApiClientRequestMethod::GET, $this->url);
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', 'Bearer 123'));
     }
 
@@ -50,7 +50,7 @@ class SendRequestTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
+        resolve(ApiClientInterface::class)->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->url() === $this->url);
     }
 
@@ -59,7 +59,7 @@ class SendRequestTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::sendRequest(ApiClientRequestMethod::GET, $this->url);
+        resolve(ApiClientInterface::class)->sendRequest(ApiClientRequestMethod::GET, $this->url);
         Http::assertSent(fn (Request $request) => $request->method() === 'GET');
     }
 
@@ -68,10 +68,10 @@ class SendRequestTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
+        resolve(ApiClientInterface::class)->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->data() === $this->options);
 
-        ApiClient::sendRequest(ApiClientRequestMethod::GET, $this->url, $this->options);
+        resolve(ApiClientInterface::class)->sendRequest(ApiClientRequestMethod::GET, $this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->data() === $this->options);
     }
 }

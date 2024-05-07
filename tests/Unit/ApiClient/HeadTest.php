@@ -7,7 +7,7 @@ use GuzzleHttp\Promise\RejectedPromise;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Stoyantodorov\ApiClient\Facades\ApiClient;
+use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class HeadTest extends TestCase
@@ -21,7 +21,7 @@ class HeadTest extends TestCase
     {
         Http::fake(fn() => Http::response(status: 500));
 
-        $response = ApiClient::head($this->url, $this->options);
+        $response = resolve(ApiClientInterface::class)->head($this->url, $this->options);
         $this->assertInstanceOf(Response::class, $response);
     }
 
@@ -31,7 +31,7 @@ class HeadTest extends TestCase
     {
         Http::fake([$this->url => fn ($request) => new RejectedPromise(new ConnectException('Foo', $request->toPsrRequest()))]);
 
-        $response = ApiClient::head($this->url, $this->options);
+        $response = resolve(ApiClientInterface::class)->head($this->url, $this->options);
         $this->AssertNull($response);
     }
 
@@ -40,7 +40,7 @@ class HeadTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::baseConfig(headers: $this->headers)->head($this->url, $this->options);
+        resolve(ApiClientInterface::class)->baseConfig(headers: $this->headers)->head($this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', 'Bearer 123'));
     }
 
@@ -49,7 +49,7 @@ class HeadTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::head($this->url);
+        resolve(ApiClientInterface::class)->head($this->url);
         Http::assertSent(fn (Request $request) => $request->url() === $this->url);
     }
 
@@ -58,7 +58,7 @@ class HeadTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::head($this->url, $this->options);
+        resolve(ApiClientInterface::class)->head($this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->method() === 'HEAD');
     }
 
@@ -67,7 +67,7 @@ class HeadTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::head($this->url, $this->options);
+        resolve(ApiClientInterface::class)->head($this->url, $this->options);
         Http::assertSent(fn (Request $request) => str_contains($request->url(), '123'));
     }
 }

@@ -128,13 +128,13 @@ class ApiClient implements ApiClientInterface
         try {
             $response = $this->getResponse($apiClientRequestMethod, $url, $options, $httpMethod, true);
 
-            return $this->processSuccessfulResponse($response, $apiClientRequestMethod, $url, $options, $httpMethod);
+            return $this->processSuccessfulResponse($response, $url, $options);
         } catch (RequestException $exception) {
             $method = $httpMethod ? $httpMethod->value : strtoupper($apiClientRequestMethod->value);
 
-            return $this->processRequestException($exception, "Failed HTTP {$method} request to {$url}", $apiClientRequestMethod, $url, $options, $httpMethod);
+            return $this->processRequestException($exception, "Failed HTTP {$method} request to {$url}", $url, $options);
         } catch (ConnectionException $exception) {
-            return $this->processConnectionException($exception, "Failed to connect to {$url}", $apiClientRequestMethod, $url, $options, $httpMethod);
+            return $this->processConnectionException($exception, "Failed to connect to {$url}", $url, $options);
         }
     }
 
@@ -179,28 +179,24 @@ class ApiClient implements ApiClientInterface
     }
 
     protected function processSuccessfulResponse(
-        Response               $response,
-        ApiClientRequestMethod $apiClientRequestMethod,
-        string                 $url,
-        array                  $options = [],
-        HttpMethod|null        $httpMethod = null,
+        Response $response,
+        string   $url,
+        array    $options = [],
     ): Response
     {
-        HttpResponseSucceeded::dispatchIf($this->eventOnSuccess, $response, $apiClientRequestMethod, $url, $options, $httpMethod);
+        HttpResponseSucceeded::dispatchIf($this->eventOnSuccess, $response, $url, $options);
 
         return $response;
     }
 
     protected function processRequestException(
-        RequestException       $exception,
-        string                 $message,
-        ApiClientRequestMethod $apiClientRequestMethod,
-        string                 $url,
-        array                  $options = [],
-        HttpMethod|null        $httpMethod = null,
+        RequestException $exception,
+        string           $message,
+        string           $url,
+        array            $options = [],
     ): Response
     {
-        HttpRequestFailed::dispatchIf($this->eventOnSuccess, $exception, $apiClientRequestMethod, $url, $options, $httpMethod);
+        HttpRequestFailed::dispatchIf($this->eventOnRequestException, $exception, $url, $options);
 
         if ($this->logOnRequestException) {
             Log::critical($message);
@@ -212,15 +208,13 @@ class ApiClient implements ApiClientInterface
     }
 
     protected function processConnectionException(
-        ConnectionException    $exception,
-        string                 $message,
-        ApiClientRequestMethod $apiClientRequestMethod,
-        string                 $url,
-        array                  $options = [],
-        HttpMethod|null        $httpMethod = null,
+        ConnectionException $exception,
+        string              $message,
+        string              $url,
+        array               $options = [],
     ): null
     {
-        HttpConnectionFailed::dispatchIf($this->eventOnSuccess, $exception, $apiClientRequestMethod, $url, $options, $httpMethod);
+        HttpConnectionFailed::dispatchIf($this->eventOnConnectionException, $exception, $url, $options);
 
         if ($this->logOnConnectionException) {
             Log::critical($message);

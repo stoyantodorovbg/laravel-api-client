@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Http;
 use Stoyantodorov\ApiClient\Enums\HttpMethod;
 use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
 use Stoyantodorov\ApiClient\Enums\PendingRequestMethod;
-use Stoyantodorov\ApiClient\Facades\ApiClient;
+use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class SendTest extends TestCase
@@ -24,7 +24,7 @@ class SendTest extends TestCase
     {
         Http::fake(fn() => Http::response(status: 500));
 
-        $response = ApiClient::send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        $response = resolve(ApiClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         $this->assertInstanceOf(Response::class, $response);
     }
 
@@ -34,7 +34,7 @@ class SendTest extends TestCase
     {
         Http::fake([$this->url => fn ($request) => new RejectedPromise(new ConnectException('Foo', $request->toPsrRequest()))]);
 
-        $response = ApiClient::send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        $response = resolve(ApiClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         $this->AssertNull($response);
     }
 
@@ -43,7 +43,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::baseConfig(headers: $this->headers)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(ApiClientInterface::class)->baseConfig(headers: $this->headers)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', 'Bearer 123'));
     }
 
@@ -52,7 +52,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
+        resolve(ApiClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
         Http::assertSent(fn (Request $request) => $request->url() === $this->url);
     }
 
@@ -61,7 +61,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(ApiClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => str_contains($request->url(), '123'));
     }
 
@@ -70,31 +70,31 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::send(HttpMethod::HEAD, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(ApiClientInterface::class)->send(HttpMethod::HEAD, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => $request->method() === 'HEAD');
 
-        ApiClient::send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(ApiClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => $request->method() === 'GET');
 
-        ApiClient::send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
+        resolve(ApiClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
         Http::assertSent(fn (Request $request) => $request->method() === 'POST');
 
-        ApiClient::send(HttpMethod::PATCH, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
+        resolve(ApiClientInterface::class)->send(HttpMethod::PATCH, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
         Http::assertSent(fn (Request $request) => $request->method() === 'PATCH');
 
-        ApiClient::send(HttpMethod::PUT, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
+        resolve(ApiClientInterface::class)->send(HttpMethod::PUT, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
         Http::assertSent(fn (Request $request) => $request->method() === 'PUT');
 
-        ApiClient::send(HttpMethod::DELETE, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
+        resolve(ApiClientInterface::class)->send(HttpMethod::DELETE, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
         Http::assertSent(fn (Request $request) => $request->method() === 'DELETE');
 
-        ApiClient::send(HttpMethod::CONNECT, $this->url, HttpRequestFormat::QUERY, []);
+        resolve(ApiClientInterface::class)->send(HttpMethod::CONNECT, $this->url, HttpRequestFormat::QUERY, []);
         Http::assertSent(fn (Request $request) => $request->method() === 'CONNECT');
 
-        ApiClient::send(HttpMethod::OPTIONS, $this->url, HttpRequestFormat::QUERY, []);
+        resolve(ApiClientInterface::class)->send(HttpMethod::OPTIONS, $this->url, HttpRequestFormat::QUERY, []);
         Http::assertSent(fn (Request $request) => $request->method() === 'OPTIONS');
 
-        ApiClient::send(HttpMethod::TRACE, $this->url, HttpRequestFormat::QUERY, []);
+        resolve(ApiClientInterface::class)->send(HttpMethod::TRACE, $this->url, HttpRequestFormat::QUERY, []);
         Http::assertSent(fn (Request $request) => $request->method() === 'TRACE');
     }
 
@@ -103,7 +103,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::addPendingRequestMethod(PendingRequestMethod::ATTACH, ['attachment',  'test'])
+        resolve(ApiClientInterface::class)->addPendingRequestMethod(PendingRequestMethod::ATTACH, ['attachment',  'test'])
             ->send(HttpMethod::POST, $this->url, HttpRequestFormat::MULTIPART, $this->options);
         Http::assertSent(fn (Request $request) => $request->isMultipart());
     }
@@ -113,7 +113,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
+        resolve(ApiClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
         Http::assertSent(fn (Request $request) => $request->isForm());
     }
 
@@ -122,7 +122,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::send(HttpMethod::POST, $this->url, HttpRequestFormat::JSON, $this->options);
+        resolve(ApiClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::JSON, $this->options);
         Http::assertSent(fn (Request $request) => $request->isJson());
     }
 
@@ -131,7 +131,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(ApiClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => str_contains($request->url(), '123'));
     }
 }

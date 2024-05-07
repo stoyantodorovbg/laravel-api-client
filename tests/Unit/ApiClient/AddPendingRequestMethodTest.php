@@ -6,7 +6,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
 use Stoyantodorov\ApiClient\Enums\PendingRequestMethod;
-use Stoyantodorov\ApiClient\Facades\ApiClient;
+use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class AddPendingRequestMethodTest extends TestCase
@@ -20,7 +20,7 @@ class AddPendingRequestMethodTest extends TestCase
     {
         Http::fake();
 
-        ApiClient::addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token])
+        resolve(ApiClientInterface::class)->addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token])
             ->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', "Bearer {$this->token}"));
 
@@ -31,7 +31,7 @@ class AddPendingRequestMethodTest extends TestCase
     {
         Http::fake();
 
-        $client = ApiClient::addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token]);
+        $client = resolve(ApiClientInterface::class)->addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token]);
         $client->addPendingRequestMethod(PendingRequestMethod::WITH_HEADER, ['accept', 'application/json'])
             ->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) =>
@@ -44,7 +44,7 @@ class AddPendingRequestMethodTest extends TestCase
     {
         Http::fake();
 
-        $client = ApiClient::addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token]);
+        $client = resolve(ApiClientInterface::class)->addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token]);
         $client->addPendingRequestMethod(PendingRequestMethod::WITH_HEADER, ['accept', 'application/json'], true)
             ->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) =>

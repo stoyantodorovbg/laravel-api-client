@@ -7,7 +7,7 @@ use GuzzleHttp\Promise\RejectedPromise;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Stoyantodorov\ApiClient\Facades\ApiClient;
+use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class DeleteTest extends TestCase
@@ -21,7 +21,7 @@ class DeleteTest extends TestCase
     {
         Http::fake(fn() => Http::response(status: 500));
 
-        $response = ApiClient::delete($this->url);
+        $response = resolve(ApiClientInterface::class)->delete($this->url);
         $this->assertInstanceOf(Response::class, $response);
     }
 
@@ -31,7 +31,7 @@ class DeleteTest extends TestCase
     {
         Http::fake([$this->url => fn ($request) => new RejectedPromise(new ConnectException('Foo', $request->toPsrRequest()))]);
 
-        $response = ApiClient::delete($this->url);
+        $response = resolve(ApiClientInterface::class)->delete($this->url);
         $this->AssertNull($response);
     }
 
@@ -40,7 +40,7 @@ class DeleteTest extends TestCase
     {
         Http::fake([$this->url => Http::response()]);
 
-        ApiClient::baseConfig(headers: $this->headers)->delete($this->url);
+        resolve(ApiClientInterface::class)->baseConfig(headers: $this->headers)->delete($this->url);
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', 'Bearer 123'));
     }
 
@@ -49,7 +49,7 @@ class DeleteTest extends TestCase
     {
         Http::fake([$this->url => Http::response()]);
 
-        ApiClient::delete($this->url);
+        resolve(ApiClientInterface::class)->delete($this->url);
         Http::assertSent(fn (Request $request) => $request->method() === 'DELETE');
     }
 
@@ -58,7 +58,7 @@ class DeleteTest extends TestCase
     {
         Http::fake([$this->url => Http::response()]);
 
-        ApiClient::delete($this->url, $this->options);
+        resolve(ApiClientInterface::class)->delete($this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->data() === $this->options);
     }
 }
