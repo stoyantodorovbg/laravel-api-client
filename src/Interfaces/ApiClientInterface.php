@@ -171,4 +171,44 @@ interface ApiClientInterface
      * @return PendingRequest|null
      */
     public function getPendingRequest(): PendingRequest|null;
+
+    /**
+     * Determine if HttpResponseSucceeded is triggered
+     *
+     * @param bool $value
+     * @return self
+     */
+    public function setEventOnSuccess(bool $value): self;
+
+    /**
+     * Determine if HttpRequestFailed is triggered
+     *
+     * @param bool $value
+     * @return self
+     */
+    public function setEventOnRequestException(bool $value): self;
+
+    /**
+     * Determine if HttpConnectionFailed is triggered
+     *
+     * @param bool $value
+     * @return self
+     */
+    public function setEventOnConnectionException(bool $value): self;
+
+    /**
+     * Determine if RequestException occurring is logged
+     *
+     * @param bool $value
+     * @return self
+     */
+    public function setLogOnRequestException(bool $value): self;
+
+    /**
+     * Determine if ConnectionException occurring is logged
+     *
+     * @param bool $value
+     * @return self
+     */
+    public function setLogOnConnectionException(bool $value): self;
 }

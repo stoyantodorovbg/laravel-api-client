@@ -228,4 +228,40 @@ class ApiClient implements ApiClientInterface
 
         return null;
     }
+
+    public function setEventOnSuccess(bool $value): self
+    {
+        $this->eventOnSuccess = $value;
+
+        return $this;
+    }
+
+    public function setEventOnRequestException(bool $value): self
+    {
+        $this->eventOnRequestException = $value;
+
+        return $this;
+    }
+
+    public function setEventOnConnectionException(bool $value): self
+    {
+        $this->eventOnConnectionException = $value;
+
+        return $this;
+    }
+
+    public function setLogOnRequestException(bool $value): self
+    {
+        $this->logOnRequestException = $value;
+
+        return $this;
+    }
+
+    public function setLogOnConnectionException(bool $value): self
+    {
+        $this->logOnConnectionException = $value;
+
+        return $this;
+    }
+
 }
