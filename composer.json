@@ -72,7 +72,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Stoyantodorov\\ApiClient\\Providers\\ApiClientServiceProvider"
+                "Stoyantodorov\\ApiClient\\ApiClientServiceProvider"
             ],
             "aliases": {
                 "ApiClient": "Stoyantodorov\\ApiClient\\Facades\\ApiClient"

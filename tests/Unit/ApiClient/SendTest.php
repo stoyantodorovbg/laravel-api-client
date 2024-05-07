@@ -125,4 +125,13 @@ class SendTest extends TestCase
         ApiClient::send(HttpMethod::POST, $this->url, HttpRequestFormat::JSON, $this->options);
         Http::assertSent(fn (Request $request) => $request->isJson());
     }
+
+    /** @test */
+    public function sends_query_parameters(): void
+    {
+        Http::fake();
+
+        ApiClient::send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        Http::assertSent(fn (Request $request) => str_contains($request->url(), '123'));
+    }
 }

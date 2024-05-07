@@ -52,26 +52,6 @@ interface ApiClientInterface
     ): self;
 
     /**
-     * Add withBasicAuth method to PendingRequest instance
-     * When PendingRequest instance doesn't exist, new one is created
-     *
-     * @param string $username
-     * @param string $password
-     * @return self
-     */
-    public function withBasicAuth(string $username, string $password): self;
-
-    /**
-     * Add withDigestAuth method to PendingRequest instance
-     * When there is no existing PendingRequest instance, new one is created
-     *
-     * @param string $username
-     * @param string $password
-     * @return self
-     */
-    public function withDigestAuth(string $username, string $password): self;
-
-    /**
      * Send a request with given HTTP method, url, options HTTP request format
      * When there is no existing PendingRequest instance, new one is created
      *

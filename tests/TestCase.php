@@ -3,7 +3,7 @@
 namespace Stoyantodorov\ApiClient\Tests;
 
 use Orchestra\Testbench\TestCase as Orchestra;
-use Stoyantodorov\ApiClient\Providers\ApiClientServiceProvider;
+use Stoyantodorov\ApiClient\ApiClientServiceProvider;
 
 class TestCase extends Orchestra
 {

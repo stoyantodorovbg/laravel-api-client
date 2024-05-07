@@ -12,13 +12,29 @@ use Stoyantodorov\ApiClient\Enums\PendingRequestMethod;
 use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
 use Stoyantodorov\ApiClient\Enums\HttpMethod;
 use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
+use Stoyantodorov\ApiClient\Events\HttpConnectionFailed;
+use Stoyantodorov\ApiClient\Events\HttpRequestFailed;
+use Stoyantodorov\ApiClient\Events\HttpResponseSucceeded;
 use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
-use function PHPUnit\Framework\matches;
 
 class ApiClient implements ApiClientInterface
 {
-    protected PendingRequest|null $pendingRequest = null;
+    protected bool $eventOnSuccess;
+    protected bool $eventOnRequestException;
+    protected bool $eventOnConnectionException;
+    protected bool $logOnRequestException;
+    protected bool $logOnConnectionException;
 
+    public function __construct()
+    {
+        $this->eventOnSuccess = config('api-client.events.onSuccess');
+        $this->eventOnRequestException = config('api-client.events.onRequestException');
+        $this->eventOnConnectionException = config('api-client.events.onConnectionException');
+        $this->logOnRequestException = config('api-client.logs.onRequestException');
+        $this->logOnConnectionException = config('api-client.logs.onConnectionException');
+    }
+
+    protected PendingRequest|null $pendingRequest = null;
     public function baseConfig(
         array $headers = [],
         int $retries = 1,
@@ -49,28 +65,6 @@ class ApiClient implements ApiClientInterface
     ): self
     {
         $this->pendingRequest = $this->pendingRequest($method, $parameters, $newPendingRequest);
-
-        return $this;
-    }
-
-    public function withBasicAuth(string $username, string $password): self
-    {
-        $this->pendingRequest = $this->pendingRequest(
-            pendingRequestMethod:  PendingRequestMethod::WITH_BASIC_AUTH,
-            parameters: [$username, $password],
-            newPendingRequest: false,
-        );
-
-        return $this;
-    }
-
-    public function withDigestAuth(string $username, string $password): self
-    {
-        $this->pendingRequest = $this->pendingRequest(
-            pendingRequestMethod:  PendingRequestMethod::WITH_DIGEST_AUTH,
-            parameters: [$username, $password],
-            newPendingRequest: false,
-        );
 
         return $this;
     }
@@ -132,13 +126,15 @@ class ApiClient implements ApiClientInterface
     ): Response|null
     {
         try {
-            return $this->getResponse($apiClientRequestMethod, $url, $options, $httpMethod, true);
+            $response = $this->getResponse($apiClientRequestMethod, $url, $options, $httpMethod, true);
+
+            return $this->processSuccessfulResponse($response, $apiClientRequestMethod, $url, $options, $httpMethod);
         } catch (RequestException $exception) {
             $method = $httpMethod ? $httpMethod->value : strtoupper($apiClientRequestMethod->value);
 
-            return $this->processRequestException($exception, "Failed HTTP {$method} request to {$url}");
-        } catch (ConnectionException $e) {
-            return $this->processConnectionException("Failed to connect to {$url}");
+            return $this->processRequestException($exception, "Failed HTTP {$method} request to {$url}", $apiClientRequestMethod, $url, $options, $httpMethod);
+        } catch (ConnectionException $exception) {
+            return $this->processConnectionException($exception, "Failed to connect to {$url}", $apiClientRequestMethod, $url, $options, $httpMethod);
         }
     }
 
@@ -167,7 +163,11 @@ class ApiClient implements ApiClientInterface
         return $this->pendingRequest;
     }
 
-    protected function pendingRequest(PendingRequestMethod $pendingRequestMethod, array $parameters = [], bool $newPendingRequest = true): PendingRequest
+    protected function pendingRequest(
+        PendingRequestMethod $pendingRequestMethod,
+        array $parameters = [],
+        bool $newPendingRequest = true
+    ): PendingRequest
     {
         $method = $pendingRequestMethod->value;
 
@@ -178,27 +178,54 @@ class ApiClient implements ApiClientInterface
         return $this->pendingRequest->{$method}(...$parameters);
     }
 
-    protected function processRequestException(RequestException $exception, string $message): Response
+    protected function processSuccessfulResponse(
+        Response               $response,
+        ApiClientRequestMethod $apiClientRequestMethod,
+        string                 $url,
+        array                  $options = [],
+        HttpMethod|null        $httpMethod = null,
+    ): Response
     {
-        Log::critical($message);
-        Log::critical("Response status: {$exception->response->status()}");
-        Log::critical($exception->response->body());
+        HttpResponseSucceeded::dispatchIf($this->eventOnSuccess, $response, $apiClientRequestMethod, $url, $options, $httpMethod);
+
+        return $response;
+    }
+
+    protected function processRequestException(
+        RequestException       $exception,
+        string                 $message,
+        ApiClientRequestMethod $apiClientRequestMethod,
+        string                 $url,
+        array                  $options = [],
+        HttpMethod|null        $httpMethod = null,
+    ): Response
+    {
+        HttpRequestFailed::dispatchIf($this->eventOnSuccess, $exception, $apiClientRequestMethod, $url, $options, $httpMethod);
+
+        if ($this->logOnRequestException) {
+            Log::critical($message);
+            Log::critical("Response status: {$exception->response->status()}");
+            Log::critical($exception->response->body());
+        }
 
         return $exception->response;
     }
 
-    protected function processConnectionException(string $message): null
+    protected function processConnectionException(
+        ConnectionException    $exception,
+        string                 $message,
+        ApiClientRequestMethod $apiClientRequestMethod,
+        string                 $url,
+        array                  $options = [],
+        HttpMethod|null        $httpMethod = null,
+    ): null
     {
-        Log::critical($message);
+        HttpConnectionFailed::dispatchIf($this->eventOnSuccess, $exception, $apiClientRequestMethod, $url, $options, $httpMethod);
+
+        if ($this->logOnConnectionException) {
+            Log::critical($message);
+        }
 
         return null;
-    }
-
-    protected function getRequestFormat(HttpMethod $method, HttpRequestFormat|null $format): string
-    {
-        return match ($method) {
-            HttpMethod::HEAD, HttpMethod::GET => HttpRequestFormat::QUERY->value,
-            default => $format->value,
-        };
     }
 }
