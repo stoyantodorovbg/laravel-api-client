@@ -13,7 +13,7 @@ use Stoyantodorov\ApiClient\Tests\TestCase;
 class PostTest extends TestCase
 {
     private string $url = 'https://dummy-host/test';
-    private array $headers = ['Authentication' => 'Bearer 123'];
+    private array $headers = ['Authorization' => 'Bearer 123'];
     private array $options = ['test' => '123'];
 
     /** @test */
@@ -41,7 +41,7 @@ class PostTest extends TestCase
         Http::fake();
 
         ApiClient::baseConfig(headers: $this->headers)->post($this->url, $this->options);
-        Http::assertSent(fn (Request $request) => $request->hasHeader('Authentication', 'Bearer 123'));
+        Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', 'Bearer 123'));
     }
 
     /** @test */

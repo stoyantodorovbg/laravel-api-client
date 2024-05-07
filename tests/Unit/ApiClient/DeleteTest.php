@@ -7,14 +7,13 @@ use GuzzleHttp\Promise\RejectedPromise;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
 use Stoyantodorov\ApiClient\Facades\ApiClient;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class DeleteTest extends TestCase
 {
     private string $url = 'https://dummy-host/test';
-    private array $headers = ['Authentication' => 'Bearer 123'];
+    private array $headers = ['Authorization' => 'Bearer 123'];
     private array $options = ['test' => '123'];
 
     /** @test */
@@ -42,7 +41,7 @@ class DeleteTest extends TestCase
         Http::fake([$this->url => Http::response()]);
 
         ApiClient::baseConfig(headers: $this->headers)->delete($this->url);
-        Http::assertSent(fn (Request $request) => $request->hasHeader('Authentication', 'Bearer 123'));
+        Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', 'Bearer 123'));
     }
 
     /** @test */

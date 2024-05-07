@@ -19,6 +19,7 @@ use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
 
 class ApiClient implements ApiClientInterface
 {
+    protected PendingRequest|null $pendingRequest = null;
     protected bool $eventOnSuccess;
     protected bool $eventOnRequestException;
     protected bool $eventOnConnectionException;
@@ -34,7 +35,6 @@ class ApiClient implements ApiClientInterface
         $this->logOnConnectionException = config('api-client.logs.onConnectionException');
     }
 
-    protected PendingRequest|null $pendingRequest = null;
     public function baseConfig(
         array $headers = [],
         int $retries = 1,
