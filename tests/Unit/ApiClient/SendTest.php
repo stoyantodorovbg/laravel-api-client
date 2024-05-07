@@ -103,7 +103,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->addPendingRequestMethod(PendingRequestMethod::ATTACH, ['attachment',  'test'])
+        resolve(ApiClientInterface::class)->configure(PendingRequestMethod::ATTACH, ['attachment',  'test'])
             ->send(HttpMethod::POST, $this->url, HttpRequestFormat::MULTIPART, $this->options);
         Http::assertSent(fn (Request $request) => $request->isMultipart());
     }

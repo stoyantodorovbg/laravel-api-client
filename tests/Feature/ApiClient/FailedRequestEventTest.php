@@ -43,14 +43,14 @@ class FailedRequestEventTest extends TestCase
         Event::fake();
         config(['api-client.events.onRequestException' => true]);
 
-        resolve(ApiClientInterface::class)->setEventOnRequestException(false)->post($this->url, $this->options);
+        resolve(ApiClientInterface::class)->fireEventOnRequestException(false)->post($this->url, $this->options);
 
         Event::assertNotDispatched(HttpRequestFailed::class);
 
         Event::fake();
         config(['api-client.events.onRequestException' => false]);
 
-        resolve(ApiClientInterface::class)->setEventOnRequestException(true)->post($this->url, $this->options);
+        resolve(ApiClientInterface::class)->fireEventOnRequestException(true)->post($this->url, $this->options);
         Event::assertDispatched(fn(HttpRequestFailed $event) =>
             $event->url === $this->url &&
             $event->options === $this->options &&

@@ -20,7 +20,7 @@ class AddPendingRequestMethodTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token])
+        resolve(ApiClientInterface::class)->configure(PendingRequestMethod::WITH_TOKEN, [$this->token])
             ->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', "Bearer {$this->token}"));
 
@@ -31,8 +31,8 @@ class AddPendingRequestMethodTest extends TestCase
     {
         Http::fake();
 
-        $client = resolve(ApiClientInterface::class)->addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token]);
-        $client->addPendingRequestMethod(PendingRequestMethod::WITH_HEADER, ['accept', 'application/json'])
+        $client = resolve(ApiClientInterface::class)->configure(PendingRequestMethod::WITH_TOKEN, [$this->token]);
+        $client->configure(PendingRequestMethod::WITH_HEADER, ['accept', 'application/json'])
             ->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) =>
             $request->hasHeader('accept', 'application/json') && array_key_exists('Authorization', $request->headers())
@@ -44,8 +44,8 @@ class AddPendingRequestMethodTest extends TestCase
     {
         Http::fake();
 
-        $client = resolve(ApiClientInterface::class)->addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token]);
-        $client->addPendingRequestMethod(PendingRequestMethod::WITH_HEADER, ['accept', 'application/json'], true)
+        $client = resolve(ApiClientInterface::class)->configure(PendingRequestMethod::WITH_TOKEN, [$this->token]);
+        $client->configure(PendingRequestMethod::WITH_HEADER, ['accept', 'application/json'], true)
             ->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) =>
             $request->hasHeader('accept', 'application/json') && ! array_key_exists('Authorization', $request->headers())

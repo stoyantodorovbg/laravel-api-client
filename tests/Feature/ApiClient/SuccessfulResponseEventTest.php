@@ -43,14 +43,14 @@ class SuccessfulResponseEventTest extends TestCase
         Event::fake();
         config(['api-client.events.onSuccess' => true]);
 
-        resolve(ApiClientInterface::class)->setEventOnSuccess(false)->post($this->url, $this->options);
+        resolve(ApiClientInterface::class)->fireEventOnSuccess(false)->post($this->url, $this->options);
 
         Event::assertNotDispatched(HttpResponseSucceeded::class);
 
         Event::fake();
         config(['api-client.events.onSuccess' => false]);
 
-        resolve(ApiClientInterface::class)->setEventOnSuccess(true)->post($this->url, $this->options);
+        resolve(ApiClientInterface::class)->fireEventOnSuccess(true)->post($this->url, $this->options);
         Event::assertDispatched(fn(HttpResponseSucceeded $event) =>
             $event->url === $this->url &&
             $event->options === $this->options &&

@@ -45,7 +45,7 @@ interface ApiClientInterface
      * @param bool                 $newPendingRequest
      * @return self
      */
-    public function addPendingRequestMethod(
+    public function configure(
         PendingRequestMethod $method,
         array $parameters = [],
         bool $newPendingRequest = false
@@ -173,28 +173,28 @@ interface ApiClientInterface
     public function getPendingRequest(): PendingRequest|null;
 
     /**
-     * Determine if HttpResponseSucceeded is triggered
+     * Determine if HttpResponseSucceeded event is fired
      *
      * @param bool $value
      * @return self
      */
-    public function setEventOnSuccess(bool $value): self;
+    public function fireEventOnSuccess(bool $value): self;
 
     /**
-     * Determine if HttpRequestFailed is triggered
+     * Determine if HttpRequestFailed event is fired
      *
      * @param bool $value
      * @return self
      */
-    public function setEventOnRequestException(bool $value): self;
+    public function fireEventOnRequestException(bool $value): self;
 
     /**
-     * Determine if HttpConnectionFailed is triggered
+     * Determine if HttpConnectionFailed event is fired
      *
      * @param bool $value
      * @return self
      */
-    public function setEventOnConnectionException(bool $value): self;
+    public function fireEventOnConnectionException(bool $value): self;
 
     /**
      * Determine if RequestException occurring is logged
@@ -202,7 +202,7 @@ interface ApiClientInterface
      * @param bool $value
      * @return self
      */
-    public function setLogOnRequestException(bool $value): self;
+    public function logOnRequestException(bool $value): self;
 
     /**
      * Determine if ConnectionException occurring is logged
@@ -210,5 +210,5 @@ interface ApiClientInterface
      * @param bool $value
      * @return self
      */
-    public function setLogOnConnectionException(bool $value): self;
+    public function logOnConnectionException(bool $value): self;
 }

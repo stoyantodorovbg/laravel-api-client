@@ -58,7 +58,7 @@ class ApiClient implements ApiClientInterface
         return $this;
     }
 
-    public function addPendingRequestMethod(
+    public function configure(
         PendingRequestMethod $method,
         array $parameters = [],
         bool $newPendingRequest = false,
@@ -86,14 +86,14 @@ class ApiClient implements ApiClientInterface
 
     public function head(string $url, array $parameters = [],): Response|null
     {
-        $this->addPendingRequestMethod(PendingRequestMethod::WITH_QUERY_PARAMETERS, [$parameters]);
+        $this->configure(PendingRequestMethod::WITH_QUERY_PARAMETERS, [$parameters]);
 
         return $this->sendRequest(ApiClientRequestMethod::HEAD, $url);
     }
 
-    public function get(string $url, array $parameters = [],): Response|null
+    public function get(string $url, array $parameters = []): Response|null
     {
-        $this->addPendingRequestMethod(PendingRequestMethod::WITH_QUERY_PARAMETERS, [$parameters]);
+        $this->configure(PendingRequestMethod::WITH_QUERY_PARAMETERS, [$parameters]);
 
         return $this->sendRequest(ApiClientRequestMethod::GET, $url);
     }
@@ -223,35 +223,35 @@ class ApiClient implements ApiClientInterface
         return null;
     }
 
-    public function setEventOnSuccess(bool $value): self
+    public function fireEventOnSuccess(bool $value): self
     {
         $this->eventOnSuccess = $value;
 
         return $this;
     }
 
-    public function setEventOnRequestException(bool $value): self
+    public function fireEventOnRequestException(bool $value): self
     {
         $this->eventOnRequestException = $value;
 
         return $this;
     }
 
-    public function setEventOnConnectionException(bool $value): self
+    public function fireEventOnConnectionException(bool $value): self
     {
         $this->eventOnConnectionException = $value;
 
         return $this;
     }
 
-    public function setLogOnRequestException(bool $value): self
+    public function logOnRequestException(bool $value): self
     {
         $this->logOnRequestException = $value;
 
         return $this;
     }
 
-    public function setLogOnConnectionException(bool $value): self
+    public function logOnConnectionException(bool $value): self
     {
         $this->logOnConnectionException = $value;
 

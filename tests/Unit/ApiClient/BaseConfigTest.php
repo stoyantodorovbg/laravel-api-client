@@ -53,7 +53,7 @@ class BaseConfigTest extends TestCase
     {
         Http::fake();
 
-        $client = resolve(ApiClientInterface::class)->addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token]);
+        $client = resolve(ApiClientInterface::class)->configure(PendingRequestMethod::WITH_TOKEN, [$this->token]);
         $client->baseConfig(headers: ['accept' => 'application/json'], newPendingRequest: false)
             ->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) =>
@@ -66,7 +66,7 @@ class BaseConfigTest extends TestCase
     {
         Http::fake();
 
-        $client = resolve(ApiClientInterface::class)->addPendingRequestMethod(PendingRequestMethod::WITH_TOKEN, [$this->token]);
+        $client = resolve(ApiClientInterface::class)->configure(PendingRequestMethod::WITH_TOKEN, [$this->token]);
         $client->baseConfig(['accept' => 'application/json'])
             ->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) =>

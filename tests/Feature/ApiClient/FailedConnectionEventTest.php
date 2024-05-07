@@ -42,14 +42,14 @@ class FailedConnectionEventTest extends TestCase
         Event::fake();
         config(['api-client.events.onConnectionException' => true]);
 
-        resolve(ApiClientInterface::class)->setEventOnConnectionException(false)->post($this->url, $this->options);
+        resolve(ApiClientInterface::class)->fireEventOnConnectionException(false)->post($this->url, $this->options);
 
         Event::assertNotDispatched(HttpConnectionFailed::class);
 
         Event::fake();
         config(['api-client.events.onConnectionException' => false]);
 
-        resolve(ApiClientInterface::class)->setEventOnConnectionException(true)->post($this->url, $this->options);
+        resolve(ApiClientInterface::class)->fireEventOnConnectionException(true)->post($this->url, $this->options);
         Event::assertDispatched(fn(HttpConnectionFailed $event) =>
             $event->url === $this->url && $event->options === $this->options
         );

@@ -9,5 +9,5 @@ return [
     'logs' => [
         'onRequestException' => true,
         'onConnectionException' => true,
-    ]
+    ],
 ];
