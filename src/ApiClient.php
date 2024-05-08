@@ -45,12 +45,10 @@ class ApiClient implements ApiClientInterface
         PendingRequest|null $pendingRequest = null,
     ): self
     {
-        $this->setPendingRequest($pendingRequest);
-
-        $pendingRequest = $pendingRequest ? $pendingRequest->headers($headers) : Http::headers($headers);
+        $pendingRequest = $pendingRequest ? $pendingRequest->withHeaders($headers) : Http::withHeaders($headers);
         $pendingRequest->retry($retries);
 
-        $this->pendingRequest = $this->pendingRequest(
+        $pendingRequest = $this->pendingRequest(
                 pendingRequestMethod:  PendingRequestMethod::RETRY,
                 pendingRequest: $pendingRequest,
                 parameters: [$retries, $retryInterval],
@@ -59,6 +57,8 @@ class ApiClient implements ApiClientInterface
             ->timeout($timeout)
             ->connectTimeout($connectTimeout)
             ->withUserAgent($userAgent ?? config('app.name'));
+
+        $this->setPendingRequest($pendingRequest);
 
         return $this;
     }
@@ -136,7 +136,7 @@ class ApiClient implements ApiClientInterface
     {
         $this->setPendingRequest($pendingRequest);
         try {
-            $response = $this->getResponse($apiClientRequestMethod, $url, $options, $httpMethod, true);
+            $response = $this->request($apiClientRequestMethod, $url, $options, $httpMethod, true);
 
             return $this->processSuccessfulResponse($response, $url, $options);
         } catch (RequestException $exception) {
@@ -148,7 +148,7 @@ class ApiClient implements ApiClientInterface
         }
     }
 
-    public function getResponse(
+    public function request(
         ApiClientRequestMethod $apiClientMethod,
         string                 $url,
         array                  $options = [],

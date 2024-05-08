@@ -21,7 +21,7 @@ class GetResponseTest extends TestCase
     {
         Http::fake(fn() => Http::response($this->fake200ResponseData));
 
-        $response = resolve(ApiClientInterface::class)->getResponse(ApiClientRequestMethod::GET, $this->url);
+        $response = resolve(ApiClientInterface::class)->request(ApiClientRequestMethod::GET, $this->url);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals($this->fake200ResponseData, $response->json());
     }
@@ -31,7 +31,7 @@ class GetResponseTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->baseConfig(headers: $this->headers)->getResponse(ApiClientRequestMethod::GET, $this->url);
+        resolve(ApiClientInterface::class)->baseConfig(headers: $this->headers)->request(ApiClientRequestMethod::GET, $this->url);
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', 'Bearer 123'));
     }
 
@@ -41,9 +41,9 @@ class GetResponseTest extends TestCase
         Http::fake(fn() => Http::response(status: 500));
 
         $this->expectException(RequestException::class);
-        resolve(ApiClientInterface::class)->getResponse(ApiClientRequestMethod::GET, $this->url, throw: true);
+        resolve(ApiClientInterface::class)->request(ApiClientRequestMethod::GET, $this->url, throw: true);
 
-        $response = resolve(ApiClientInterface::class)->getResponse(ApiClientRequestMethod::GET, $this->url);
+        $response = resolve(ApiClientInterface::class)->request(ApiClientRequestMethod::GET, $this->url);
         $this->assertInstanceOf(Response::class, $response);
     }
 }

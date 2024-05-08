@@ -7,16 +7,13 @@ use Illuminate\Support\Facades\Http;
 use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
 use Stoyantodorov\ApiClient\Enums\HttpMethod;
 use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
-use Stoyantodorov\ApiClient\Enums\PendingRequestMethod;
 use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class BaseConfigTest extends TestCase
 {
-    private string $url = 'https://dummy-host/test';
-    private array $options = ['test' => '123'];
-    private array $headers = ['Authorization' => 'Bearer 123', 'accept' => 'application/json'];
-    private string $token = 'token123';
+    use CommonData;
+
 
     /** @test */
     public function sets_headers(): void
@@ -24,9 +21,7 @@ class BaseConfigTest extends TestCase
         Http::fake();
 
         resolve(ApiClientInterface::class)->baseConfig(headers: $this->headers)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
-        Http::assertSent(fn (Request $request) =>
-            $request->hasHeader('Authorization', 'Bearer 123') && $request->hasHeader('accept', 'application/json')
-        );
+        Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', 'Bearer 123'));
     }
 
     /** @test */
@@ -49,28 +44,27 @@ class BaseConfigTest extends TestCase
     }
 
     /** @test */
-    public function keeps_the_pending_request_that_has_been_set_already_when_appropriate_parameter_is_sent(): void
+    public function resets_pending_request_that_hase_been_set_when_receives_a_new_one(): void
     {
         Http::fake();
 
-        $client = resolve(ApiClientInterface::class)->configure(PendingRequestMethod::WITH_TOKEN, [$this->token]);
-        $client->baseConfig(headers: ['accept' => 'application/json'], newPendingRequest: false)
+        $client = resolve(ApiClientInterface::class)->setPendingRequest(Http::withToken($this->token));
+        $client->baseConfig(headers: ['accept' => 'application/json'])
             ->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) =>
-            $request->hasHeader('accept', 'application/json') && $request->hasHeader('Authorization', "Bearer {$this->token}")
+            $request->hasHeader('accept', 'application/json') && ! array_key_exists('Authorization', $request->headers())
         );
     }
 
     /** @test */
-    public function sets_new_pending_request_by_default(): void
+    public function sets_pending_request(): void
     {
         Http::fake();
 
-        $client = resolve(ApiClientInterface::class)->configure(PendingRequestMethod::WITH_TOKEN, [$this->token]);
-        $client->baseConfig(['accept' => 'application/json'])
+        resolve(ApiClientInterface::class)->baseConfig(headers: ['accept' => 'application/json'], pendingRequest: Http::withToken($this->token))
             ->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) =>
-            $request->hasHeader('accept', 'application/json') && ! array_key_exists('Authorization', $request->headers())
+            $request->hasHeader('accept', 'application/json') && $request->hasHeader('Authorization', "Bearer {$this->token}")
         );
     }
 }

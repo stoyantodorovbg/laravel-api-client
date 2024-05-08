@@ -7,17 +7,15 @@ use GuzzleHttp\Promise\RejectedPromise;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
 use Stoyantodorov\ApiClient\Enums\HttpMethod;
 use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
-use Stoyantodorov\ApiClient\Enums\PendingRequestMethod;
 use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class SendTest extends TestCase
 {
-    private string $url = 'https://dummy-host/test';
-    private array $headers = ['Authorization' => 'Bearer 123'];
-    private array $options = ['test' => '123'];
+    use CommonData;
 
     /** @test */
     public function catches_request_exception(): void
@@ -103,8 +101,13 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->configure(PendingRequestMethod::ATTACH, ['attachment',  'test'])
-            ->send(HttpMethod::POST, $this->url, HttpRequestFormat::MULTIPART, $this->options);
+        resolve(ApiClientInterface::class)->send(
+            httpMethod: HttpMethod::POST,
+            url: $this->url,
+            format: HttpRequestFormat::MULTIPART,
+            options: $this->options,
+            pendingRequest: Http::attach('attachment',  'test')
+        );
         Http::assertSent(fn (Request $request) => $request->isMultipart());
     }
 
@@ -133,5 +136,27 @@ class SendTest extends TestCase
 
         resolve(ApiClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => str_contains($request->url(), '123'));
+    }
+
+    /** @test */
+    public function sets_pending_request(): void
+    {
+        Http::fake();
+
+        resolve(ApiClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
+
+        resolve(ApiClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options, Http::withToken($this->token));
+        Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', "Bearer {$this->token}"));
+    }
+
+    /** @test */
+    public function resets_pending_request(): void
+    {
+        Http::fake();
+
+        resolve(ApiClientInterface::class)->setPendingRequest(Http::withHeaders($this->additionalHeaders))
+            ->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options, Http::withToken($this->token));
+        Http::assertSent(fn (Request $request) =>
+        $request->hasHeader('Authorization', "Bearer {$this->token}")) && ! array_key_exists('accept', $request->headers());
     }
 }

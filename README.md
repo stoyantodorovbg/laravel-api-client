@@ -10,7 +10,6 @@ This package provides a way to use Laravel HTTP facade with error handling, logg
 
 
 ## Installation
-(WIP)
 
 ```bash
 composer require stoyantodorov/laravel-api-client
@@ -72,7 +71,7 @@ use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
 $apiClient->send(HttpMethod::CONNECT, 'https://exmple-host', HttpRequestFormat::QUERY, [], Http::withToken($token));
 ```
 
-To send a request without error handling, logging and event firing use:
+If you need to send a request without error handling, logging and event firing may use:
 
 ```php
 use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
@@ -235,7 +234,7 @@ $apiClient->fireEventOnSuccess(false);
     ): Response|null;
 
     /**
-     * Get a response without error handling and event triggering
+     * Send request without error handling and event triggering
      * Throw RequestException when throw is true
      *
      * @param ApiClientRequestMethod $apiClientMethod
@@ -245,7 +244,7 @@ $apiClient->fireEventOnSuccess(false);
      * @param bool                   $throw
      * @return Response
      */
-    public function getResponse(
+    public function request(
         ApiClientRequestMethod $apiClientMethod,
         string                 $url,
         array                  $options = [],
@@ -268,6 +267,46 @@ $apiClient->fireEventOnSuccess(false);
      * @return PendingRequest|null
      */
     public function getPendingRequest(): PendingRequest|null;
+
+    /**
+     * Determine if HttpResponseSucceeded event is fired
+     *
+     * @param bool $value
+     * @return self
+     */
+    public function fireEventOnSuccess(bool $value): self;
+
+    /**
+     * Determine if HttpRequestFailed event is fired
+     *
+     * @param bool $value
+     * @return self
+     */
+    public function fireEventOnRequestException(bool $value): self;
+
+    /**
+     * Determine if HttpConnectionFailed event is fired
+     *
+     * @param bool $value
+     * @return self
+     */
+    public function fireEventOnConnectionException(bool $value): self;
+
+    /**
+     * Determine if RequestException occurring is logged
+     *
+     * @param bool $value
+     * @return self
+     */
+    public function logOnRequestException(bool $value): self;
+
+    /**
+     * Determine if ConnectionException occurring is logged
+     *
+     * @param bool $value
+     * @return self
+     */
+    public function logOnConnectionException(bool $value): self;
 ```
 
 ## Enums

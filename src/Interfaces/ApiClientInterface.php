@@ -13,6 +13,7 @@ interface ApiClientInterface
     /**
      * Base configuration for PendingRequest
      * When PendingRequest instance isn't received, new one is created
+     * Resets pendingRequest property when receives a PendingRequest instance
      *
      * @param array               $headers
      * @param int                 $retries
@@ -36,6 +37,7 @@ interface ApiClientInterface
     /**
      * Send a request with given HTTP method, url, options HTTP request format
      * When PendingRequest instance isn't received, new one is created
+     * Resets pendingRequest property when receives a PendingRequest instance
      *
      * @param HttpMethod          $httpMethod
      * @param string              $url
@@ -55,6 +57,7 @@ interface ApiClientInterface
     /**
      * Send HEAD request
      * When PendingRequest instance isn't received, new one is created
+     * Resets pendingRequest property when receives a PendingRequest instance
      *
      * @param string              $url
      * @param array               $parameters
@@ -66,6 +69,7 @@ interface ApiClientInterface
     /**
      * Send GET request
      * When PendingRequest instance isn't received, new one is created
+     * Resets pendingRequest property when receives a PendingRequest instance
      *
      * @param string              $url
      * @param array               $parameters
@@ -88,6 +92,7 @@ interface ApiClientInterface
     /**
      * Send PUT request
      * When PendingRequest instance isn't received, new one is created
+     * Resets pendingRequest property when receives a PendingRequest instance
      *
      * @param string              $url
      * @param array               $body
@@ -99,6 +104,7 @@ interface ApiClientInterface
     /**
      * Send PATCH request
      * When PendingRequest instance isn't received, new one is created
+     * Resets pendingRequest property when receives a PendingRequest instance
      *
      * @param string              $url
      * @param array               $body
@@ -110,6 +116,7 @@ interface ApiClientInterface
     /**
      * Send DELETE request
      * When PendingRequest instance isn't received, new one is created
+     * Resets pendingRequest property when receives a PendingRequest instance
      *
      * @param string              $url
      * @param array               $body
@@ -142,8 +149,9 @@ interface ApiClientInterface
     ): Response|null;
 
     /**
-     * Get a response without error handling and event triggering
+     * Send request without error handling and event triggering
      * Throw RequestException when throw is true
+     * Resets pendingRequest property when receives a PendingRequest instance
      *
      * @param ApiClientRequestMethod $apiClientMethod
      * @param string                 $url
@@ -152,7 +160,7 @@ interface ApiClientInterface
      * @param bool                   $throw
      * @return Response
      */
-    public function getResponse(
+    public function request(
         ApiClientRequestMethod $apiClientMethod,
         string                 $url,
         array                  $options = [],

@@ -12,9 +12,7 @@ use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class HeadTest extends TestCase
 {
-    private string $url = 'https://dummy-host/test';
-    private array $headers = ['Authorization' => 'Bearer 123'];
-    private array $options = ['test' => '123'];
+    use CommonData;
 
     /** @test */
     public function catches_request_exception(): void
@@ -69,5 +67,25 @@ class HeadTest extends TestCase
 
         resolve(ApiClientInterface::class)->head($this->url, $this->options);
         Http::assertSent(fn (Request $request) => str_contains($request->url(), '123'));
+    }
+
+    /** @test */
+    public function sets_pending_request(): void
+    {
+        Http::fake();
+
+        resolve(ApiClientInterface::class)->head($this->url, $this->options, Http::withToken($this->token));
+        Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', "Bearer {$this->token}"));
+    }
+
+    /** @test */
+    public function resets_pending_request(): void
+    {
+        Http::fake();
+
+        resolve(ApiClientInterface::class)->setPendingRequest(Http::withHeaders($this->additionalHeaders))
+            ->head($this->url, $this->options, Http::withToken($this->token));
+        Http::assertSent(fn (Request $request) =>
+        $request->hasHeader('Authorization', "Bearer {$this->token}")) && ! array_key_exists('accept', $request->headers());
     }
 }
