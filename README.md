@@ -10,7 +10,7 @@ This package provides a way to use Laravel HTTP facade with error handling, logg
 
 
 ## Installation
-
+(WIP)
 
 ```bash
 composer require stoyantodorov/laravel-api-client
@@ -34,7 +34,7 @@ $apiClient = resolve(ApiClientInterface::class);
 $response = $apiClient->get('https://exmple-host', ['queryParam' => 'value']);
 ```
 
-You can use also a configured PendingRequest:
+You can also use a configured PendingRequest:
 ```php
 use Illuminate\Support\Facades\Http;
 
@@ -43,14 +43,14 @@ $apiClient->get('https://exmple-host', ['queryParam' => 'value'], Http::withToke
 
 There is a method to add base configurations:
 ```php
-$apiClient = baseConfig(retries: 3, retryInterval: 3000);
+$apiClient = baseConfig(retries: 3, retryInterval: 3000, timout: 60, connectTimeout: 5, userAgent: 'Test');
 ```
 
-It can also receive a configured PendingRequest:
+It can receive a configured PendingRequest too:
 ```php
 use Illuminate\Support\Facades\Http;
 
-$apiClient = baseConfig(retries: 3, retryInterval: 3000, pendingRequest: Http::withToken($token));
+$apiClient = baseConfig(retries: 3, pendingRequest: Http::withToken($token));
 ```
 
 Use send method for specific HTTP method and format:
@@ -62,7 +62,7 @@ use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
 $apiClient->send(HttpMethod::CONNECT, 'https://exmple-host', HttpRequestFormat::QUERY, []);
 ```
 
-Optionally it also receives PendingRequest:
+Optionally you can send a configured PendingRequest instance:
 
 ```php
 use Illuminate\Support\Facades\Http;
@@ -96,11 +96,12 @@ Logging and event firing is configurable trough config values:
 
 These configurations can be overridden through ApiClient setters:
 ```php
-$apiClient->->fireEventOnSuccess(false);
+$apiClient->fireEventOnSuccess(false);
 ```
 
 
 ## API Reference
+### ApiClientInterface
 ```php
     /**
      * Base configuration for PendingRequest
