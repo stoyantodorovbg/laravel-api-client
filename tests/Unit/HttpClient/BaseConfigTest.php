@@ -1,13 +1,13 @@
 <?php
 
-namespace Stoyantodorov\ApiClient\Tests\Unit\ApiClient;
+namespace Stoyantodorov\ApiClient\Tests\Unit\HttpClient;
 
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
-use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
+use Stoyantodorov\ApiClient\Enums\HttpClientRequestMethod;
 use Stoyantodorov\ApiClient\Enums\HttpMethod;
 use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
-use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
+use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class BaseConfigTest extends TestCase
@@ -20,7 +20,7 @@ class BaseConfigTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->baseConfig(headers: $this->headers)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(HttpClientInterface::class)->baseConfig(headers: $this->headers)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', 'Bearer 123'));
     }
 
@@ -29,7 +29,7 @@ class BaseConfigTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->baseConfig()->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(HttpClientInterface::class)->baseConfig()->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => $request->hasHeader('User-Agent', config('app.name')));
     }
 
@@ -39,7 +39,7 @@ class BaseConfigTest extends TestCase
         Http::fake();
 
         $userAgent = 'Custom Agent';
-        resolve(ApiClientInterface::class)->baseConfig(userAgent: $userAgent)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(HttpClientInterface::class)->baseConfig(userAgent: $userAgent)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => $request->hasHeader('User-Agent', $userAgent));
     }
 
@@ -48,9 +48,9 @@ class BaseConfigTest extends TestCase
     {
         Http::fake();
 
-        $client = resolve(ApiClientInterface::class)->setPendingRequest(Http::withToken($this->token));
+        $client = resolve(HttpClientInterface::class)->setPendingRequest(Http::withToken($this->token));
         $client->baseConfig(headers: ['accept' => 'application/json'])
-            ->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
+            ->sendRequest(HttpClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) =>
             $request->hasHeader('accept', 'application/json') && ! array_key_exists('Authorization', $request->headers())
         );
@@ -61,8 +61,8 @@ class BaseConfigTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->baseConfig(headers: ['accept' => 'application/json'], pendingRequest: Http::withToken($this->token))
-            ->sendRequest(ApiClientRequestMethod::POST, $this->url, $this->options);
+        resolve(HttpClientInterface::class)->baseConfig(headers: ['accept' => 'application/json'], pendingRequest: Http::withToken($this->token))
+            ->sendRequest(HttpClientRequestMethod::POST, $this->url, $this->options);
         Http::assertSent(fn (Request $request) =>
             $request->hasHeader('accept', 'application/json') && $request->hasHeader('Authorization', "Bearer {$this->token}")
         );

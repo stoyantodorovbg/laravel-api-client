@@ -2,7 +2,7 @@
 
 namespace Stoyantodorov\ApiClient\Enums;
 
-enum ApiClientRequestMethod: string
+enum HttpClientRequestMethod: string
 {
     case GET = 'get';
     case HEAD = 'head';

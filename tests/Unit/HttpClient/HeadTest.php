@@ -1,13 +1,13 @@
 <?php
 
-namespace Stoyantodorov\ApiClient\Tests\Unit\ApiClient;
+namespace Stoyantodorov\ApiClient\Tests\Unit\HttpClient;
 
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Promise\RejectedPromise;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
+use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class HeadTest extends TestCase
@@ -19,7 +19,7 @@ class HeadTest extends TestCase
     {
         Http::fake(fn() => Http::response(status: 500));
 
-        $response = resolve(ApiClientInterface::class)->head($this->url, $this->options);
+        $response = resolve(HttpClientInterface::class)->head($this->url, $this->options);
         $this->assertInstanceOf(Response::class, $response);
     }
 
@@ -29,7 +29,7 @@ class HeadTest extends TestCase
     {
         Http::fake([$this->url => fn ($request) => new RejectedPromise(new ConnectException('Foo', $request->toPsrRequest()))]);
 
-        $response = resolve(ApiClientInterface::class)->head($this->url, $this->options);
+        $response = resolve(HttpClientInterface::class)->head($this->url, $this->options);
         $this->AssertNull($response);
     }
 
@@ -38,7 +38,7 @@ class HeadTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->baseConfig(headers: $this->headers)->head($this->url, $this->options);
+        resolve(HttpClientInterface::class)->baseConfig(headers: $this->headers)->head($this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', 'Bearer 123'));
     }
 
@@ -47,7 +47,7 @@ class HeadTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->head($this->url);
+        resolve(HttpClientInterface::class)->head($this->url);
         Http::assertSent(fn (Request $request) => $request->url() === $this->url);
     }
 
@@ -56,7 +56,7 @@ class HeadTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->head($this->url, $this->options);
+        resolve(HttpClientInterface::class)->head($this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->method() === 'HEAD');
     }
 
@@ -65,7 +65,7 @@ class HeadTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->head($this->url, $this->options);
+        resolve(HttpClientInterface::class)->head($this->url, $this->options);
         Http::assertSent(fn (Request $request) => str_contains($request->url(), '123'));
     }
 
@@ -74,7 +74,7 @@ class HeadTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->head($this->url, $this->options, Http::withToken($this->token));
+        resolve(HttpClientInterface::class)->head($this->url, $this->options, Http::withToken($this->token));
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', "Bearer {$this->token}"));
     }
 
@@ -83,7 +83,7 @@ class HeadTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->setPendingRequest(Http::withHeaders($this->additionalHeaders))
+        resolve(HttpClientInterface::class)->setPendingRequest(Http::withHeaders($this->additionalHeaders))
             ->head($this->url, $this->options, Http::withToken($this->token));
         Http::assertSent(fn (Request $request) =>
         $request->hasHeader('Authorization', "Bearer {$this->token}")) && ! array_key_exists('accept', $request->headers());

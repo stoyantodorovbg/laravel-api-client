@@ -6,7 +6,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Stoyantodorov\ApiClient\Events\HttpConnectionFailed;
-use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
+use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class FailedConnectionEventTest extends TestCase
@@ -21,7 +21,7 @@ class FailedConnectionEventTest extends TestCase
         Event::fake();
         config(['api-client.events.onConnectionException' => true]);
 
-        resolve(ApiClientInterface::class)->post($this->url, $this->options);
+        resolve(HttpClientInterface::class)->post($this->url, $this->options);
 
         Event::assertDispatched(fn(HttpConnectionFailed $event) =>
             $event->url === $this->url && $event->options === $this->options
@@ -30,7 +30,7 @@ class FailedConnectionEventTest extends TestCase
         Event::fake();
         config(['api-client.events.onConnectionException' => false]);
 
-        resolve(ApiClientInterface::class)->post($this->url, $this->options);
+        resolve(HttpClientInterface::class)->post($this->url, $this->options);
 
         Event::assertNotDispatched(HttpConnectionFailed::class);
     }
@@ -42,14 +42,14 @@ class FailedConnectionEventTest extends TestCase
         Event::fake();
         config(['api-client.events.onConnectionException' => true]);
 
-        resolve(ApiClientInterface::class)->fireEventOnConnectionException(false)->post($this->url, $this->options);
+        resolve(HttpClientInterface::class)->fireEventOnConnectionException(false)->post($this->url, $this->options);
 
         Event::assertNotDispatched(HttpConnectionFailed::class);
 
         Event::fake();
         config(['api-client.events.onConnectionException' => false]);
 
-        resolve(ApiClientInterface::class)->fireEventOnConnectionException(true)->post($this->url, $this->options);
+        resolve(HttpClientInterface::class)->fireEventOnConnectionException(true)->post($this->url, $this->options);
         Event::assertDispatched(fn(HttpConnectionFailed $event) =>
             $event->url === $this->url && $event->options === $this->options
         );

@@ -25,12 +25,12 @@ php artisan vendor:publish --tag="laravel-api-client-config"
 
 ## Usage
 
-Resolve an ApiClient instance in a way that fits what you need, for example:
+Resolve an HttpClient instance in a way that fits what you need, for example:
 
 ```php
-use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
+use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 
-$apiClient = resolve(ApiClientInterface::class);
+$apiClient = resolve(HttpClientInterface::class);
 ```
 
 Send a request:
@@ -79,9 +79,9 @@ $apiClient->send(HttpMethod::CONNECT, 'https://exmple-host', HttpRequestFormat::
 When you need to send a request without error handling, logging and event firing may use:
 
 ```php
-use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
+use Stoyantodorov\ApiClient\Enums\HttpClientRequestMethod;
 
-$apiClient->->sendRequest(ApiClientRequestMethod::GET, 'https://exmple-host');
+$apiClient->->sendRequest(HttpClientRequestMethod::GET, 'https://exmple-host');
 ```
 
 Logging and event firing is configurable trough config values:
@@ -98,14 +98,14 @@ Logging and event firing is configurable trough config values:
     ],
 ```
 
-These configurations can be overridden through ApiClient setters:
+These configurations can be overridden through HttpClient setters:
 ```php
 $apiClient->fireEventOnSuccess(false);
 ```
 
 
 ## API Reference
-### ApiClientInterface
+### HttpClientInterface
 ```php
     /**
      * Base configuration for PendingRequest
@@ -216,14 +216,14 @@ $apiClient->fireEventOnSuccess(false);
     public function delete(string $url, array $body = [], PendingRequest|null $pendingRequest = null): Response|null;
 
     /**
-     * Send a request by given ApiClient request method, url, options
+     * Send a request by given HttpClient request method, url, options
      * Catches RequestException and ConnectionException
      * Logs messages
      * Fires events depending on the configurations
-     * $httpMethod parameter should be provided when $apiClientRequestMethod is ApiClientRequestMethod::SEND
+     * $httpMethod parameter should be provided when $apiClientRequestMethod is HttpClientRequestMethod::SEND
      * When PendingRequest instance isn't received, new one is created
      *
-     * @param ApiClientRequestMethod $apiClientRequestMethod
+     * @param HttpClientRequestMethod $apiClientRequestMethod
      * @param string                 $url
      * @param array                  $options
      * @param PendingRequest|null    $pendingRequest
@@ -231,7 +231,7 @@ $apiClient->fireEventOnSuccess(false);
      * @return Response|null
      */
     public function sendRequest(
-        ApiClientRequestMethod $apiClientRequestMethod,
+        HttpClientRequestMethod $apiClientRequestMethod,
         string                 $url,
         array                  $options = [],
         PendingRequest|null    $pendingRequest = null,
@@ -242,7 +242,7 @@ $apiClient->fireEventOnSuccess(false);
      * Send request without error handling and event triggering
      * Throw RequestException when throw is true
      *
-     * @param ApiClientRequestMethod $apiClientMethod
+     * @param HttpClientRequestMethod $apiClientMethod
      * @param string                 $url
      * @param array                  $options
      * @param HttpMethod|null        $httpMethod
@@ -250,7 +250,7 @@ $apiClient->fireEventOnSuccess(false);
      * @return Response
      */
     public function request(
-        ApiClientRequestMethod $apiClientMethod,
+        HttpClientRequestMethod $apiClientMethod,
         string                 $url,
         array                  $options = [],
         HttpMethod|null        $httpMethod = null,
@@ -343,7 +343,7 @@ enum HttpRequestFormat: string
 ```
 
 ```php
-enum ApiClientRequestMethod: string
+enum HttpClientRequestMethod: string
 {
     case GET = 'get';
     case HEAD = 'head';

@@ -4,7 +4,7 @@ namespace Stoyantodorov\ApiClient;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
+use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 
 class ApiClientServiceProvider extends PackageServiceProvider
 {
@@ -12,6 +12,6 @@ class ApiClientServiceProvider extends PackageServiceProvider
     {
         $package->name('laravel-api-client')->hasConfigFile('api-client');
 
-        $this->app->bind(ApiClientInterface::class, ApiClient::class);
+        $this->app->bind(HttpClientInterface::class, HttpClient::class);
     }
 }

@@ -1,13 +1,13 @@
 <?php
 
-namespace Stoyantodorov\ApiClient\Tests\Unit\ApiClient;
+namespace Stoyantodorov\ApiClient\Tests\Unit\HttpClient;
 
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
-use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
+use Stoyantodorov\ApiClient\Enums\HttpClientRequestMethod;
+use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class GetResponseTest extends TestCase
@@ -21,7 +21,7 @@ class GetResponseTest extends TestCase
     {
         Http::fake(fn() => Http::response($this->fake200ResponseData));
 
-        $response = resolve(ApiClientInterface::class)->request(ApiClientRequestMethod::GET, $this->url);
+        $response = resolve(HttpClientInterface::class)->request(HttpClientRequestMethod::GET, $this->url);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals($this->fake200ResponseData, $response->json());
     }
@@ -31,7 +31,7 @@ class GetResponseTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->baseConfig(headers: $this->headers)->request(ApiClientRequestMethod::GET, $this->url);
+        resolve(HttpClientInterface::class)->baseConfig(headers: $this->headers)->request(HttpClientRequestMethod::GET, $this->url);
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', 'Bearer 123'));
     }
 
@@ -41,9 +41,9 @@ class GetResponseTest extends TestCase
         Http::fake(fn() => Http::response(status: 500));
 
         $this->expectException(RequestException::class);
-        resolve(ApiClientInterface::class)->request(ApiClientRequestMethod::GET, $this->url, throw: true);
+        resolve(HttpClientInterface::class)->request(HttpClientRequestMethod::GET, $this->url, throw: true);
 
-        $response = resolve(ApiClientInterface::class)->request(ApiClientRequestMethod::GET, $this->url);
+        $response = resolve(HttpClientInterface::class)->request(HttpClientRequestMethod::GET, $this->url);
         $this->assertInstanceOf(Response::class, $response);
     }
 }

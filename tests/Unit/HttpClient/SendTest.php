@@ -1,16 +1,15 @@
 <?php
 
-namespace Stoyantodorov\ApiClient\Tests\Unit\ApiClient;
+namespace Stoyantodorov\ApiClient\Tests\Unit\HttpClient;
 
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Promise\RejectedPromise;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
 use Stoyantodorov\ApiClient\Enums\HttpMethod;
 use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
-use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
+use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class SendTest extends TestCase
@@ -22,7 +21,7 @@ class SendTest extends TestCase
     {
         Http::fake(fn() => Http::response(status: 500));
 
-        $response = resolve(ApiClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        $response = resolve(HttpClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         $this->assertInstanceOf(Response::class, $response);
     }
 
@@ -32,7 +31,7 @@ class SendTest extends TestCase
     {
         Http::fake([$this->url => fn ($request) => new RejectedPromise(new ConnectException('Foo', $request->toPsrRequest()))]);
 
-        $response = resolve(ApiClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        $response = resolve(HttpClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         $this->AssertNull($response);
     }
 
@@ -41,7 +40,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->baseConfig(headers: $this->headers)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(HttpClientInterface::class)->baseConfig(headers: $this->headers)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', 'Bearer 123'));
     }
 
@@ -50,7 +49,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
+        resolve(HttpClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
         Http::assertSent(fn (Request $request) => $request->url() === $this->url);
     }
 
@@ -59,7 +58,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(HttpClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => str_contains($request->url(), '123'));
     }
 
@@ -68,31 +67,31 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::HEAD, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(HttpClientInterface::class)->send(HttpMethod::HEAD, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => $request->method() === 'HEAD');
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(HttpClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => $request->method() === 'GET');
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
+        resolve(HttpClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
         Http::assertSent(fn (Request $request) => $request->method() === 'POST');
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::PATCH, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
+        resolve(HttpClientInterface::class)->send(HttpMethod::PATCH, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
         Http::assertSent(fn (Request $request) => $request->method() === 'PATCH');
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::PUT, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
+        resolve(HttpClientInterface::class)->send(HttpMethod::PUT, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
         Http::assertSent(fn (Request $request) => $request->method() === 'PUT');
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::DELETE, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
+        resolve(HttpClientInterface::class)->send(HttpMethod::DELETE, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
         Http::assertSent(fn (Request $request) => $request->method() === 'DELETE');
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::CONNECT, $this->url, HttpRequestFormat::QUERY, []);
+        resolve(HttpClientInterface::class)->send(HttpMethod::CONNECT, $this->url, HttpRequestFormat::QUERY, []);
         Http::assertSent(fn (Request $request) => $request->method() === 'CONNECT');
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::OPTIONS, $this->url, HttpRequestFormat::QUERY, []);
+        resolve(HttpClientInterface::class)->send(HttpMethod::OPTIONS, $this->url, HttpRequestFormat::QUERY, []);
         Http::assertSent(fn (Request $request) => $request->method() === 'OPTIONS');
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::TRACE, $this->url, HttpRequestFormat::QUERY, []);
+        resolve(HttpClientInterface::class)->send(HttpMethod::TRACE, $this->url, HttpRequestFormat::QUERY, []);
         Http::assertSent(fn (Request $request) => $request->method() === 'TRACE');
     }
 
@@ -101,7 +100,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->send(
+        resolve(HttpClientInterface::class)->send(
             httpMethod: HttpMethod::POST,
             url: $this->url,
             format: HttpRequestFormat::MULTIPART,
@@ -116,7 +115,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
+        resolve(HttpClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
         Http::assertSent(fn (Request $request) => $request->isForm());
     }
 
@@ -125,7 +124,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::JSON, $this->options);
+        resolve(HttpClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::JSON, $this->options);
         Http::assertSent(fn (Request $request) => $request->isJson());
     }
 
@@ -134,7 +133,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
+        resolve(HttpClientInterface::class)->send(HttpMethod::GET, $this->url, HttpRequestFormat::QUERY, $this->options);
         Http::assertSent(fn (Request $request) => str_contains($request->url(), '123'));
     }
 
@@ -143,9 +142,9 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
+        resolve(HttpClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options);
 
-        resolve(ApiClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options, Http::withToken($this->token));
+        resolve(HttpClientInterface::class)->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options, Http::withToken($this->token));
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', "Bearer {$this->token}"));
     }
 
@@ -154,7 +153,7 @@ class SendTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->setPendingRequest(Http::withHeaders($this->additionalHeaders))
+        resolve(HttpClientInterface::class)->setPendingRequest(Http::withHeaders($this->additionalHeaders))
             ->send(HttpMethod::POST, $this->url, HttpRequestFormat::FORM_PARAMS, $this->options, Http::withToken($this->token));
         Http::assertSent(fn (Request $request) =>
         $request->hasHeader('Authorization', "Bearer {$this->token}")) && ! array_key_exists('accept', $request->headers());

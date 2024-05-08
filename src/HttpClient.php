@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\Log;
 use Stoyantodorov\ApiClient\Enums\PendingRequestMethod;
 use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
 use Stoyantodorov\ApiClient\Enums\HttpMethod;
-use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
+use Stoyantodorov\ApiClient\Enums\HttpClientRequestMethod;
 use Stoyantodorov\ApiClient\Events\HttpConnectionFailed;
 use Stoyantodorov\ApiClient\Events\HttpRequestFailed;
 use Stoyantodorov\ApiClient\Events\HttpResponseSucceeded;
-use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
+use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 
-class ApiClient implements ApiClientInterface
+class HttpClient implements HttpClientInterface
 {
     protected PendingRequest|null $pendingRequest = null;
     protected bool $eventOnSuccess;
@@ -72,7 +72,7 @@ class ApiClient implements ApiClientInterface
     ): Response|null
     {
         return $this->sendRequest(
-            apiClientRequestMethod: ApiClientRequestMethod::SEND,
+            apiClientRequestMethod: HttpClientRequestMethod::SEND,
             url: $url,
             options: [$format->value => $options],
             pendingRequest: $pendingRequest,
@@ -90,7 +90,7 @@ class ApiClient implements ApiClientInterface
             );
         }
 
-        return $this->sendRequest(apiClientRequestMethod: ApiClientRequestMethod::HEAD, url: $url, pendingRequest: $pendingRequest);
+        return $this->sendRequest(apiClientRequestMethod: HttpClientRequestMethod::HEAD, url: $url, pendingRequest: $pendingRequest);
     }
 
     public function get(string $url, array $parameters = [], PendingRequest|null $pendingRequest = null): Response|null
@@ -103,35 +103,35 @@ class ApiClient implements ApiClientInterface
             );
         }
 
-        return $this->sendRequest(apiClientRequestMethod: ApiClientRequestMethod::GET, url: $url, pendingRequest: $pendingRequest);
+        return $this->sendRequest(apiClientRequestMethod: HttpClientRequestMethod::GET, url: $url, pendingRequest: $pendingRequest);
     }
 
     public function post(string $url, array $body = [], PendingRequest|null $pendingRequest = null): Response|null
     {
-        return $this->sendRequest(ApiClientRequestMethod::POST, $url, $body, $pendingRequest);
+        return $this->sendRequest(HttpClientRequestMethod::POST, $url, $body, $pendingRequest);
     }
 
     public function put(string $url, array $body = [], PendingRequest|null $pendingRequest = null): Response|null
     {
-        return $this->sendRequest(ApiClientRequestMethod::PUT, $url, $body, $pendingRequest);
+        return $this->sendRequest(HttpClientRequestMethod::PUT, $url, $body, $pendingRequest);
     }
 
     public function patch(string $url, array $body = [], PendingRequest|null $pendingRequest = null): Response|null
     {
-        return $this->sendRequest(ApiClientRequestMethod::PATCH, $url, $body, $pendingRequest);
+        return $this->sendRequest(HttpClientRequestMethod::PATCH, $url, $body, $pendingRequest);
     }
 
     public function delete(string $url, array $body = [], PendingRequest|null $pendingRequest = null): Response|null
     {
-        return $this->sendRequest(ApiClientRequestMethod::DELETE, $url, $body, $pendingRequest);
+        return $this->sendRequest(HttpClientRequestMethod::DELETE, $url, $body, $pendingRequest);
     }
 
     public function sendRequest(
-        ApiClientRequestMethod $apiClientRequestMethod,
-        string                 $url,
-        array                  $options = [],
-        PendingRequest|null    $pendingRequest = null,
-        HttpMethod|null        $httpMethod = null,
+        HttpClientRequestMethod $apiClientRequestMethod,
+        string                  $url,
+        array                   $options = [],
+        PendingRequest|null     $pendingRequest = null,
+        HttpMethod|null         $httpMethod = null,
     ): Response|null
     {
         $this->setPendingRequest($pendingRequest);
@@ -149,16 +149,16 @@ class ApiClient implements ApiClientInterface
     }
 
     public function request(
-        ApiClientRequestMethod $apiClientMethod,
-        string                 $url,
-        array                  $options = [],
-        HttpMethod|null        $httpMethod = null,
-        bool                   $throw = false,
+        HttpClientRequestMethod $apiClientMethod,
+        string                  $url,
+        array                   $options = [],
+        HttpMethod|null         $httpMethod = null,
+        bool                    $throw = false,
     ): Response
     {
         $methodToUse = $apiClientMethod->value;
         $parameters = match ($apiClientMethod) {
-            ApiClientRequestMethod::SEND => [$httpMethod->value, $url, $options],
+            HttpClientRequestMethod::SEND => [$httpMethod->value, $url, $options],
             default => [$url, $options],
         };
         $response = $this->pendingRequest ?

@@ -1,16 +1,16 @@
 <?php
 
-namespace Stoyantodorov\ApiClient\Tests\Unit\ApiClient;
+namespace Stoyantodorov\ApiClient\Tests\Unit\HttpClient;
 
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Promise\RejectedPromise;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
+use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
-class DeleteTest extends TestCase
+class PatchTest extends TestCase
 {
     use CommonData;
 
@@ -19,7 +19,7 @@ class DeleteTest extends TestCase
     {
         Http::fake(fn() => Http::response(status: 500));
 
-        $response = resolve(ApiClientInterface::class)->delete($this->url);
+        $response = resolve(HttpClientInterface::class)->patch($this->url, $this->options);
         $this->assertInstanceOf(Response::class, $response);
     }
 
@@ -29,34 +29,43 @@ class DeleteTest extends TestCase
     {
         Http::fake([$this->url => fn ($request) => new RejectedPromise(new ConnectException('Foo', $request->toPsrRequest()))]);
 
-        $response = resolve(ApiClientInterface::class)->delete($this->url);
+        $response = resolve(HttpClientInterface::class)->patch($this->url, $this->options);
         $this->AssertNull($response);
     }
 
     /** @test */
     public function makes_a_request_with_the_configured_pending_request(): void
     {
-        Http::fake([$this->url => Http::response()]);
+        Http::fake();
 
-        resolve(ApiClientInterface::class)->baseConfig(headers: $this->headers)->delete($this->url);
+        resolve(HttpClientInterface::class)->baseConfig(headers: $this->headers)->patch($this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', 'Bearer 123'));
     }
 
     /** @test */
-    public function uses_method_delete(): void
+    public function sends_to_the_expected_url(): void
     {
-        Http::fake([$this->url => Http::response()]);
+        Http::fake();
 
-        resolve(ApiClientInterface::class)->delete($this->url);
-        Http::assertSent(fn (Request $request) => $request->method() === 'DELETE');
+        resolve(HttpClientInterface::class)->patch($this->url, $this->options);
+        Http::assertSent(fn (Request $request) => $request->url() === $this->url);
+    }
+
+    /** @test */
+    public function uses_method_patch(): void
+    {
+        Http::fake();
+
+        resolve(HttpClientInterface::class)->patch($this->url, $this->options);
+        Http::assertSent(fn (Request $request) => $request->method() === 'PATCH');
     }
 
     /** @test */
     public function sends_provided_data(): void
     {
-        Http::fake([$this->url => Http::response()]);
+        Http::fake();
 
-        resolve(ApiClientInterface::class)->delete($this->url, $this->options);
+        resolve(HttpClientInterface::class)->patch($this->url, $this->options);
         Http::assertSent(fn (Request $request) => $request->data() === $this->options);
     }
 
@@ -65,7 +74,7 @@ class DeleteTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->delete($this->url, $this->options, Http::withToken($this->token));
+        resolve(HttpClientInterface::class)->patch($this->url, $this->options, Http::withToken($this->token));
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', "Bearer {$this->token}"));
     }
 
@@ -74,8 +83,8 @@ class DeleteTest extends TestCase
     {
         Http::fake();
 
-        resolve(ApiClientInterface::class)->setPendingRequest(Http::withHeaders($this->additionalHeaders))
-            ->delete($this->url, $this->options, Http::withToken($this->token));
+        resolve(HttpClientInterface::class)->setPendingRequest(Http::withHeaders($this->additionalHeaders))
+            ->patch($this->url, $this->options, Http::withToken($this->token));
         Http::assertSent(fn (Request $request) =>
         $request->hasHeader('Authorization', "Bearer {$this->token}")) && ! array_key_exists('accept', $request->headers());
     }

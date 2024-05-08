@@ -5,7 +5,7 @@ namespace Stoyantodorov\ApiClient\Tests\Feature\ApiClient;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Stoyantodorov\ApiClient\Events\HttpResponseSucceeded;
-use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
+use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class SuccessfulResponseEventTest extends TestCase
@@ -20,7 +20,7 @@ class SuccessfulResponseEventTest extends TestCase
         Event::fake();
         config(['api-client.events.onSuccess' => true]);
 
-        resolve(ApiClientInterface::class)->post($this->url, $this->options);
+        resolve(HttpClientInterface::class)->post($this->url, $this->options);
 
         Event::assertDispatched(fn(HttpResponseSucceeded $event) =>
             $event->url === $this->url &&
@@ -31,7 +31,7 @@ class SuccessfulResponseEventTest extends TestCase
         Event::fake();
         config(['api-client.events.onSuccess' => false]);
 
-        resolve(ApiClientInterface::class)->post($this->url, $this->options);
+        resolve(HttpClientInterface::class)->post($this->url, $this->options);
 
         Event::assertNotDispatched(HttpResponseSucceeded::class);
     }
@@ -43,14 +43,14 @@ class SuccessfulResponseEventTest extends TestCase
         Event::fake();
         config(['api-client.events.onSuccess' => true]);
 
-        resolve(ApiClientInterface::class)->fireEventOnSuccess(false)->post($this->url, $this->options);
+        resolve(HttpClientInterface::class)->fireEventOnSuccess(false)->post($this->url, $this->options);
 
         Event::assertNotDispatched(HttpResponseSucceeded::class);
 
         Event::fake();
         config(['api-client.events.onSuccess' => false]);
 
-        resolve(ApiClientInterface::class)->fireEventOnSuccess(true)->post($this->url, $this->options);
+        resolve(HttpClientInterface::class)->fireEventOnSuccess(true)->post($this->url, $this->options);
         Event::assertDispatched(fn(HttpResponseSucceeded $event) =>
             $event->url === $this->url &&
             $event->options === $this->options &&

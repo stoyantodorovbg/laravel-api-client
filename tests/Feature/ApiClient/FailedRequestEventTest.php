@@ -5,7 +5,7 @@ namespace Stoyantodorov\ApiClient\Tests\Feature\ApiClient;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Stoyantodorov\ApiClient\Events\HttpRequestFailed;
-use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
+use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class FailedRequestEventTest extends TestCase
@@ -20,7 +20,7 @@ class FailedRequestEventTest extends TestCase
         Event::fake();
         config(['api-client.events.onRequestException' => true]);
 
-        resolve(ApiClientInterface::class)->post($this->url, $this->options);
+        resolve(HttpClientInterface::class)->post($this->url, $this->options);
 
         Event::assertDispatched(fn(HttpRequestFailed $event) =>
             $event->url === $this->url &&
@@ -31,7 +31,7 @@ class FailedRequestEventTest extends TestCase
         Event::fake();
         config(['api-client.events.onRequestException' => false]);
 
-        resolve(ApiClientInterface::class)->post($this->url, $this->options);
+        resolve(HttpClientInterface::class)->post($this->url, $this->options);
 
         Event::assertNotDispatched(HttpRequestFailed::class);
     }
@@ -43,14 +43,14 @@ class FailedRequestEventTest extends TestCase
         Event::fake();
         config(['api-client.events.onRequestException' => true]);
 
-        resolve(ApiClientInterface::class)->fireEventOnRequestException(false)->post($this->url, $this->options);
+        resolve(HttpClientInterface::class)->fireEventOnRequestException(false)->post($this->url, $this->options);
 
         Event::assertNotDispatched(HttpRequestFailed::class);
 
         Event::fake();
         config(['api-client.events.onRequestException' => false]);
 
-        resolve(ApiClientInterface::class)->fireEventOnRequestException(true)->post($this->url, $this->options);
+        resolve(HttpClientInterface::class)->fireEventOnRequestException(true)->post($this->url, $this->options);
         Event::assertDispatched(fn(HttpRequestFailed $event) =>
             $event->url === $this->url &&
             $event->options === $this->options &&

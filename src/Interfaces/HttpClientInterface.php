@@ -6,9 +6,9 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
 use Stoyantodorov\ApiClient\Enums\HttpMethod;
-use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
+use Stoyantodorov\ApiClient\Enums\HttpClientRequestMethod;
 
-interface ApiClientInterface
+interface HttpClientInterface
 {
     /**
      * Base configuration for PendingRequest
@@ -126,26 +126,26 @@ interface ApiClientInterface
     public function delete(string $url, array $body = [], PendingRequest|null $pendingRequest = null): Response|null;
 
     /**
-     * Send a request by given ApiClient request method, url, options
+     * Send a request by given HttpClient request method, url, options
      * Catches RequestException and ConnectionException
      * Logs messages
      * Fires events depending on the configurations
-     * $httpMethod parameter should be provided when $apiClientRequestMethod is ApiClientRequestMethod::SEND
+     * $httpMethod parameter should be provided when $apiClientRequestMethod is HttpClientRequestMethod::SEND
      * When PendingRequest instance isn't received, new one is created
      *
-     * @param ApiClientRequestMethod $apiClientRequestMethod
-     * @param string                 $url
-     * @param array                  $options
-     * @param PendingRequest|null    $pendingRequest
-     * @param HttpMethod|null        $httpMethod
+     * @param HttpClientRequestMethod $apiClientRequestMethod
+     * @param string                  $url
+     * @param array                   $options
+     * @param PendingRequest|null     $pendingRequest
+     * @param HttpMethod|null         $httpMethod
      * @return Response|null
      */
     public function sendRequest(
-        ApiClientRequestMethod $apiClientRequestMethod,
-        string                 $url,
-        array                  $options = [],
-        PendingRequest|null    $pendingRequest = null,
-        HttpMethod|null        $httpMethod = null,
+        HttpClientRequestMethod $apiClientRequestMethod,
+        string                  $url,
+        array                   $options = [],
+        PendingRequest|null     $pendingRequest = null,
+        HttpMethod|null         $httpMethod = null,
     ): Response|null;
 
     /**
@@ -153,19 +153,19 @@ interface ApiClientInterface
      * Throw RequestException when throw is true
      * Resets pendingRequest property when receives a PendingRequest instance
      *
-     * @param ApiClientRequestMethod $apiClientMethod
-     * @param string                 $url
-     * @param array                  $options
-     * @param HttpMethod|null        $httpMethod
-     * @param bool                   $throw
+     * @param HttpClientRequestMethod $apiClientMethod
+     * @param string                  $url
+     * @param array                   $options
+     * @param HttpMethod|null         $httpMethod
+     * @param bool                    $throw
      * @return Response
      */
     public function request(
-        ApiClientRequestMethod $apiClientMethod,
-        string                 $url,
-        array                  $options = [],
-        HttpMethod|null        $httpMethod = null,
-        bool                   $throw = false,
+        HttpClientRequestMethod $apiClientMethod,
+        string                  $url,
+        array                   $options = [],
+        HttpMethod|null         $httpMethod = null,
+        bool                    $throw = false,
 
     ): Response;
 
