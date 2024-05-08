@@ -25,15 +25,20 @@ php artisan vendor:publish --tag="laravel-api-client-config"
 
 ## Usage
 
-Send a request:
+Resolve an ApiClient instance in a way that fits what you need, for example:
+
 ```php
 use Stoyantodorov\ApiClient\Interfaces\ApiClientInterface;
 
 $apiClient = resolve(ApiClientInterface::class);
+```
+
+Send a request:
+```php
 $response = $apiClient->get('https://exmple-host', ['queryParam' => 'value']);
 ```
 
-You can also use a configured PendingRequest:
+You can configure PendingRequest in advance:
 ```php
 use Illuminate\Support\Facades\Http;
 
@@ -45,7 +50,7 @@ There is a method to add base configurations:
 $apiClient = baseConfig(retries: 3, retryInterval: 3000, timout: 60, connectTimeout: 5, userAgent: 'Test');
 ```
 
-It can receive a configured PendingRequest too:
+It also can receive a configured PendingRequest:
 ```php
 use Illuminate\Support\Facades\Http;
 
@@ -61,7 +66,7 @@ use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
 $apiClient->send(HttpMethod::CONNECT, 'https://exmple-host', HttpRequestFormat::QUERY, []);
 ```
 
-Optionally you can send a configured PendingRequest instance:
+Optionally you can add configured PendingRequest to it too:
 
 ```php
 use Illuminate\Support\Facades\Http;
@@ -71,7 +76,7 @@ use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
 $apiClient->send(HttpMethod::CONNECT, 'https://exmple-host', HttpRequestFormat::QUERY, [], Http::withToken($token));
 ```
 
-If you need to send a request without error handling, logging and event firing may use:
+When you need to send a request without error handling, logging and event firing may use:
 
 ```php
 use Stoyantodorov\ApiClient\Enums\ApiClientRequestMethod;
