@@ -16,12 +16,14 @@ return [
             'method' => 'post',
             'body' => [],
             'headers' => [],
+            'responseNestedKeys' => ['access_token']
         ],
         'refreshTokenRequest' => [
             'url' => '',
             'method' => 'post',
             'body' => [],
             'headers' => [],
+            'responseNestedKeys' => ['access_token']
         ],
         'tokenRequestsRetries' => 3,
     ]

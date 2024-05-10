@@ -2,6 +2,8 @@
 
 namespace Stoyantodorov\ApiClient\Interfaces;
 
+use SensitiveParameter;
+
 interface TokenFromConfigFactoryInterface
 {
     /**
@@ -13,5 +15,8 @@ interface TokenFromConfigFactoryInterface
      * @param string      $configKey
      * @return TokenInterface
      */
-    public static function create(string|null $token, string $configKey = 'tokenConfigurationsBase'): TokenInterface;
+    public static function create(
+        #[SensitiveParameter] string|null $token,
+                              string $configKey = 'tokenConfigurationsBase'
+    ): TokenInterface;
 }

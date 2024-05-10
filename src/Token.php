@@ -4,19 +4,19 @@ namespace Stoyantodorov\ApiClient;
 
 use Illuminate\Http\Client\Response;
 use SensitiveParameter;
-use Stoyantodorov\ApiClient\Data\TokenRequestData;
-use Stoyantodorov\ApiClient\Data\RefreshTokenRequestData;
+use Stoyantodorov\ApiClient\Data\TokenData;
+use Stoyantodorov\ApiClient\Data\RefreshTokenData;
 use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Interfaces\TokenInterface;
 
 class Token implements TokenInterface
 {
     public function __construct(
-                              protected HttpClientInterface     $httpClient,
-        #[SensitiveParameter] protected TokenRequestData        $tokenRequestData,
-        #[SensitiveParameter] protected RefreshTokenRequestData $refreshTokenRequestData,
-        #[SensitiveParameter] protected string|null             $token = null,
-                              protected int                     $retries = 3,
+                              protected HttpClientInterface $httpClient,
+        #[SensitiveParameter] protected TokenData           $tokenData,
+        #[SensitiveParameter] protected RefreshTokenData    $refreshTokenData,
+        #[SensitiveParameter] protected string|null         $token = null,
+                              protected int                 $retries = 3,
     )
     {
     }
@@ -34,24 +34,28 @@ class Token implements TokenInterface
         return $this->token;
     }
 
-    protected function requestToken(): void
+    protected function requestToken(): string
     {
-        $this->request(
-            url: $this->tokenRequestData->url,
-            body: $this->tokenRequestData->body,
-            headers: $this->tokenRequestData->headers,
-            method: $this->tokenRequestData->method
+        $response = $this->request(
+            url: $this->tokenData->url,
+            body: $this->tokenData->body,
+            headers: $this->tokenData->headers,
+            method: $this->tokenData->method
         );
+
+        return $this->processSuccessResponse($response, 'tokenData');
     }
 
-    protected function refreshToken(): void
+    protected function refreshToken(): string
     {
-        $this->request(
-            url: $this->refreshTokenRequestData->url,
-            body: $this->refreshTokenRequestData->body,
-            headers: $this->refreshTokenRequestData->headers,
-            method: $this->refreshTokenRequestData->method
+        $response = $this->request(
+            url: $this->refreshTokenData->url,
+            body: $this->refreshTokenData->body,
+            headers: $this->refreshTokenData->headers,
+            method: $this->refreshTokenData->method
         );
+
+        return $this->processSuccessResponse($response, 'refreshTokenData');
     }
 
     protected function request(string $url, array $body, array $headers, string $method): Response
@@ -61,10 +65,13 @@ class Token implements TokenInterface
             ->{$method}($url, $body);
     }
 
-    protected function processSuccessResponse(Response $response): string
+    protected function processSuccessResponse(Response $response, string $dataName): string
     {
-        $responseBody = $response->json();
-        $this->token = $responseBody['access_token'];
+        $token = $response->json();
+        foreach ($this->{$dataName}->responseNestedKeys as $key) {
+            $token = $token[$key];
+        }
+        $this->token = $token;
 
         return $this->token;
     }
