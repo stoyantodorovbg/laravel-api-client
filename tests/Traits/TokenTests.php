@@ -2,10 +2,12 @@
 
 namespace Stoyantodorov\ApiClient\Tests\Traits;
 
-trait TokenRequestsData
+trait TokenTests
 {
+    private string $tokenValue = 'testTokenValue';
+    private string $refreshedTokenValue = 'refreshedTokenValue';
     private string $host = 'https://dummy-host/test';
-    private array $headers = ['accept' => 'application/json'];
+    private array $headers = ['accept' => 'application/vnd.cloudlx.v1+json'];
     private string $method = 'post';
     private string $accessTokenRequestPath = 'token';
     private array $accessTokenRequestBody = [

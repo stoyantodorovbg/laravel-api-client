@@ -22,15 +22,15 @@ class TokenFromConfigFactory implements TokenFromConfigFactoryInterface
             url: config("api-client.{$configKey}.accessTokenRequest.url"),
             body: config("api-client.{$configKey}.accessTokenRequest.body"),
             headers: config("api-client.{$configKey}.accessTokenRequest.headers"),
-            method: config("api-client.{$configKey}.accessTokenRequest.method"),
             responseNestedKeys: config("api-client.{$configKey}.accessTokenRequest.responseNestedKeys"),
+            method: config("api-client.{$configKey}.accessTokenRequest.method"),
         );
         $refreshTokenData = $hasRefreshTokenRequest ? new RefreshTokenData(
             url: config("api-client.{$configKey}.refreshTokenRequest.url"),
             body: config("api-client.{$configKey}.refreshTokenRequest.body"),
             headers: config("api-client.{$configKey}.refreshTokenRequest.headers"),
-            method: config("api-client.{$configKey}.refreshTokenRequest.method"),
             responseNestedKeys: config("api-client.{$configKey}.accessTokenRequest.responseNestedKeys"),
+            method: config("api-client.{$configKey}.refreshTokenRequest.method"),
 
         ) : null;
 

@@ -13,17 +13,17 @@ return [
     'tokenConfigurationsBase' => [
         'accessTokenRequest' => [
             'url' => '',
-            'method' => 'post',
             'body' => [],
             'headers' => [],
-            'responseNestedKeys' => ['access_token']
+            'responseNestedKeys' => ['access_token'],
+            'method' => 'post',
         ],
         'refreshTokenRequest' => [
             'url' => '',
-            'method' => 'post',
             'body' => [],
             'headers' => [],
-            'responseNestedKeys' => ['refresh_token']
+            'responseNestedKeys' => ['access_token'],
+            'method' => 'post',
         ],
         'tokenRequestsRetries' => 3,
     ],

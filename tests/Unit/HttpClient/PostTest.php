@@ -87,6 +87,7 @@ class PostTest extends TestCase
         resolve(HttpClientInterface::class)->setPendingRequest(Http::withHeaders($this->additionalHeaders))
             ->post($this->url, $this->options, Http::withToken($this->token));
         Http::assertSent(fn (Request $request) =>
-        $request->hasHeader('Authorization', "Bearer {$this->token}")) && ! array_key_exists('accept', $request->headers());
+            $request->hasHeader('Authorization', "Bearer {$this->token}")) && ! array_key_exists('accept', $request->headers()
+        );
     }
 }
