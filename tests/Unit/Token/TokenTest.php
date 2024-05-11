@@ -3,9 +3,12 @@
 namespace Stoyantodorov\ApiClient\Tests\Unit\Token;
 
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Stoyantodorov\ApiClient\Data\RefreshTokenData;
 use Stoyantodorov\ApiClient\Data\TokenData;
+use Stoyantodorov\ApiClient\Events\AccessTokenReceived;
+use Stoyantodorov\ApiClient\Events\AccessTokenRefreshed;
 use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 use Stoyantodorov\ApiClient\Tests\Traits\TokenTests;
@@ -110,6 +113,38 @@ class TokenTest extends TestCase
     }
 
     /** @test */
+    public function fires_certain_event_when_receives_a_token(): void
+    {
+        $path = $this->getPath($this->accessTokenRequestPath);
+        $service = new Token(
+            httpClient: resolve(HttpClientInterface::class),
+            tokenData: new TokenData($path, $this->accessTokenRequestBody),
+        );
+
+        Http::fake([$path => Http::response(['access_token' => $this->tokenValue])]);
+        Event::fake();
+
+        $service->get();
+        Event::assertDispatched(AccessTokenReceived::class);
+    }
+
+    /** @test */
+    public function do_not_fire_event_when_receives_a_token(): void
+    {
+        $path = $this->getPath($this->accessTokenRequestPath);
+        $service = new Token(
+            httpClient: resolve(HttpClientInterface::class),
+            tokenData: new TokenData($path, $this->accessTokenRequestBody, dispatchEvent: false),
+        );
+
+        Http::fake([$path => Http::response(['access_token' => $this->tokenValue])]);
+        Event::fake();
+
+        $service->get();
+        Event::assertNotDispatched(AccessTokenReceived::class);
+    }
+
+    /** @test */
     public function returns_the_token_from_the_response_instead_of_the_one_received_as_constructor_parameter_when_refreshes(): void
     {
         $path = $this->getPath($this->refreshTokenRequestPath);
@@ -210,5 +245,40 @@ class TokenTest extends TestCase
         $this->clearExistingFakes();
         Http::fake([$path => Http::response(['data' => ['access_token' => $this->refreshedTokenValue]])]);
         $this->assertSame($this->refreshedTokenValue, $service->get(true));
+    }
+
+
+    /** @test */
+    public function fires_certain_event_when_refreshes_a_token(): void
+    {
+        $path = $this->getPath($this->refreshTokenRequestPath);
+        $service = new Token(
+            httpClient: resolve(HttpClientInterface::class),
+            tokenData: new TokenData($path, $this->refreshTokenRequestBody),
+            refreshTokenData: new RefreshTokenData($path, $this->refreshTokenRequestBody),
+        );
+
+        Http::fake([$path => Http::response(['access_token' => $this->refreshedTokenValue])]);
+        Event::fake();
+
+        $service->get(true);
+        Event::assertDispatched(AccessTokenRefreshed::class);
+    }
+
+    /** @test */
+    public function do_not_fire_event_when_refreshes_a_token(): void
+    {
+        $path = $this->getPath($this->refreshTokenRequestPath);
+        $service = new Token(
+            httpClient: resolve(HttpClientInterface::class),
+            tokenData: new TokenData($path, $this->refreshTokenRequestBody),
+            refreshTokenData: new RefreshTokenData($path, $this->refreshTokenRequestBody, dispatchEvent: false),
+        );
+
+        Http::fake([$path => Http::response(['access_token' => $this->refreshedTokenValue])]);
+        Event::fake();
+
+        $service->get(true);
+        Event::assertNotDispatched(AccessTokenRefreshed::class);
     }
 }

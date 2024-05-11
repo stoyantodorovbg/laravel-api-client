@@ -12,6 +12,7 @@ readonly class TokenData
         #[SensitiveParameter] public array  $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'],
                               public array  $responseNestedKeys = ['access_token'],
                               public string $method = 'post',
+                              public bool   $dispatchEvent = true,
     )
     {
     }

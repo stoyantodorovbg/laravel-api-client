@@ -24,6 +24,7 @@ class TokenFromConfigFactory implements TokenFromConfigFactoryInterface
             headers: config("api-client.{$configKey}.accessTokenRequest.headers"),
             responseNestedKeys: config("api-client.{$configKey}.accessTokenRequest.responseNestedKeys"),
             method: config("api-client.{$configKey}.accessTokenRequest.method"),
+            dispatchEvent: config("api-client.{$configKey}.accessTokenRequest.dispatchEvent"),
         );
         $refreshTokenData = $hasRefreshTokenRequest ? new RefreshTokenData(
             url: config("api-client.{$configKey}.refreshTokenRequest.url"),
@@ -31,7 +32,7 @@ class TokenFromConfigFactory implements TokenFromConfigFactoryInterface
             headers: config("api-client.{$configKey}.refreshTokenRequest.headers"),
             responseNestedKeys: config("api-client.{$configKey}.accessTokenRequest.responseNestedKeys"),
             method: config("api-client.{$configKey}.refreshTokenRequest.method"),
-
+            dispatchEvent: config("api-client.{$configKey}.refreshTokenRequest.dispatchEvent"),
         ) : null;
 
         return new Token(

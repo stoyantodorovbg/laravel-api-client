@@ -6,11 +6,18 @@ use Illuminate\Http\Client\Response;
 use SensitiveParameter;
 use Stoyantodorov\ApiClient\Data\TokenData;
 use Stoyantodorov\ApiClient\Data\RefreshTokenData;
+use Stoyantodorov\ApiClient\Events\AccessTokenReceived;
+use Stoyantodorov\ApiClient\Events\AccessTokenRefreshed;
 use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Interfaces\TokenInterface;
 
 class Token implements TokenInterface
 {
+    protected array $eventsMap = [
+        'tokenData'        => AccessTokenReceived::class,
+        'refreshTokenData' => AccessTokenRefreshed::class,
+    ];
+
     public function __construct(
                               protected HttpClientInterface   $httpClient,
         #[SensitiveParameter] protected TokenData             $tokenData,
@@ -72,6 +79,10 @@ class Token implements TokenInterface
             $token = $token[$key];
         }
         $this->token = $token;
+        if ($this->{$dataName}->dispatchEvent) {
+            $event = $this->eventsMap[$dataName];
+            $event::dispatch($response);
+        }
 
         return $this->token;
     }

@@ -17,6 +17,7 @@ return [
             'headers' => [],
             'responseNestedKeys' => ['access_token'],
             'method' => 'post',
+            'dispatchEvent' => true,
         ],
         'refreshTokenRequest' => [
             'url' => '',
@@ -24,6 +25,7 @@ return [
             'headers' => [],
             'responseNestedKeys' => ['access_token'],
             'method' => 'post',
+            'dispatchEvent' => true,
         ],
         'tokenRequestsRetries' => 3,
     ],

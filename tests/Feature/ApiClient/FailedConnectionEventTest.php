@@ -31,7 +31,6 @@ class FailedConnectionEventTest extends TestCase
         config(['api-client.events.onConnectionException' => false]);
 
         resolve(HttpClientInterface::class)->post($this->url, $this->options);
-
         Event::assertNotDispatched(HttpConnectionFailed::class);
     }
 

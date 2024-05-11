@@ -36,14 +36,16 @@ class TokenFromConfigFactoryTest extends TestCase
                     'method' => 'post',
                     'body' => [],
                     'headers' => [],
-                    'responseNestedKeys' => ['access_token']
+                    'responseNestedKeys' => ['access_token'],
+                    'dispatchEvent' => true,
                 ],
                 'refreshTokenRequest' => [
                     'url' => '',
                     'method' => 'post',
                     'body' => [],
                     'headers' => [],
-                    'responseNestedKeys' => ['access_token']
+                    'responseNestedKeys' => ['access_token'],
+                    'dispatchEvent' => true,
                 ],
                 'tokenRequestsRetries' => 3,
             ]
