@@ -1,6 +1,6 @@
 <?php
 
-namespace Stoyantodorov\ApiClient\Tests\Unit\HttpClient;
+namespace Stoyantodorov\ApiClient\Tests\Traits;
 
 trait CommonData
 {

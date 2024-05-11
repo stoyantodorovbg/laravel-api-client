@@ -12,16 +12,16 @@ interface TokenFromDataFactoryInterface
      * Instantiate TokenInterface
      * When receives $token it is set in TokenInterface instance
      *
-     * @param string|null      $token
-     * @param TokenData        $tokenRequestData
-     * @param RefreshTokenData $refreshTokenRequestData
+     * @param TokenData        $tokenData
+     * @param RefreshTokenData $refreshTokenData
      * @param int              $retries
+     * @param string|null $token = null
      * @return TokenInterface
      */
     public static function create(
-        string|null                            $token,
-        #[SensitiveParameter] TokenData        $tokenRequestData,
-        #[SensitiveParameter] RefreshTokenData $refreshTokenRequestData,
+        #[SensitiveParameter] TokenData        $tokenData,
+        #[SensitiveParameter] RefreshTokenData $refreshTokenData,
                               int              $retries = 3,
+        string|null                            $token = null,
     ): TokenInterface;
 }

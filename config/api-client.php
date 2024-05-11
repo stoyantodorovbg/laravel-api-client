@@ -23,8 +23,8 @@ return [
             'method' => 'post',
             'body' => [],
             'headers' => [],
-            'responseNestedKeys' => ['access_token']
+            'responseNestedKeys' => ['refresh_token']
         ],
         'tokenRequestsRetries' => 3,
-    ]
+    ],
 ];

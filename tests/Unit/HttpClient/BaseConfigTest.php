@@ -9,6 +9,7 @@ use Stoyantodorov\ApiClient\Enums\HttpMethod;
 use Stoyantodorov\ApiClient\Enums\HttpRequestFormat;
 use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
+use Stoyantodorov\ApiClient\Tests\Traits\CommonData;
 
 class BaseConfigTest extends TestCase
 {

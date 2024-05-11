@@ -12,11 +12,11 @@ use Stoyantodorov\ApiClient\Interfaces\TokenInterface;
 class Token implements TokenInterface
 {
     public function __construct(
-                              protected HttpClientInterface $httpClient,
-        #[SensitiveParameter] protected TokenData           $tokenData,
-        #[SensitiveParameter] protected RefreshTokenData    $refreshTokenData,
-        #[SensitiveParameter] protected string|null         $token = null,
-                              protected int                 $retries = 3,
+                              protected HttpClientInterface   $httpClient,
+        #[SensitiveParameter] protected TokenData             $tokenData,
+        #[SensitiveParameter] protected RefreshTokenData|null $refreshTokenData = null,
+        #[SensitiveParameter] protected string|null           $token = null,
+                              protected int                   $retries = 3,
     )
     {
     }

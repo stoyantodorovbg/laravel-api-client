@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 use Stoyantodorov\ApiClient\Enums\HttpClientRequestMethod;
 use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
+use Stoyantodorov\ApiClient\Tests\Traits\CommonData;
 
 class SendRequestTest extends TestCase
 {

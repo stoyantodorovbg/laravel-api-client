@@ -13,29 +13,33 @@ use Stoyantodorov\ApiClient\Token;
 class TokenFromConfigFactory implements TokenFromConfigFactoryInterface
 {
     public static function create(
-        #[SensitiveParameter] string|null $token,
-                              string $configKey = 'tokenConfigurationsBase'
+                              bool $hasRefreshTokenRequest = true,
+                              string $configKey = 'tokenConfigurationsBase',
+        #[SensitiveParameter] string|null $token = null,
     ): TokenInterface
     {
+        $tokenData = new TokenData(
+            url: config("api-client.{$configKey}.accessTokenRequest.url"),
+            body: config("api-client.{$configKey}.accessTokenRequest.body"),
+            headers: config("api-client.{$configKey}.accessTokenRequest.headers"),
+            method: config("api-client.{$configKey}.accessTokenRequest.method"),
+            responseNestedKeys: config("api-client.{$configKey}.accessTokenRequest.responseNestedKeys"),
+        );
+        $refreshTokenData = $hasRefreshTokenRequest ? new RefreshTokenData(
+            url: config("api-client.{$configKey}.refreshTokenRequest.url"),
+            body: config("api-client.{$configKey}.refreshTokenRequest.body"),
+            headers: config("api-client.{$configKey}.refreshTokenRequest.headers"),
+            method: config("api-client.{$configKey}.refreshTokenRequest.method"),
+            responseNestedKeys: config("api-client.{$configKey}.accessTokenRequest.responseNestedKeys"),
+
+        ) : null;
+
         return new Token(
             httpClient: resolve(HttpClientInterface::class),
-            tokenData: new TokenData(
-                url: config('api-client.accessTokenRequest.url'),
-                body: config('api-client.accessTokenRequest.body'),
-                headers: config('api-client.accessTokenRequest.headers'),
-                method: config('api-client.accessTokenRequest.method'),
-                responseNestedKeys: config('api-client.accessTokenRequest.responseNestedKeys'),
-            ),
-            refreshTokenData: new RefreshTokenData(
-                url: config('api-client.refreshTokenRequest.url'),
-                body: config('api-client.refreshTokenRequest.body'),
-                headers: config('api-client.refreshTokenRequest.headers'),
-                method: config('api-client.refreshTokenRequest.method'),
-                responseNestedKeys: config('api-client.accessTokenRequest.responseNestedKeys'),
-
-            ),
+            tokenData: $tokenData,
+            refreshTokenData: $refreshTokenData,
             token: $token,
-            retries: config('api-client.tokenRequestsRetries'),
+            retries: config("api-client.{$configKey}.tokenRequestsRetries"),
         );
     }
 }
