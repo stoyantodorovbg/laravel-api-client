@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Stoyantodorov\ApiClient\Data\RefreshTokenData;
 use Stoyantodorov\ApiClient\Data\TokenData;
-use Stoyantodorov\ApiClient\Events\AccessTokenReceived;
+use Stoyantodorov\ApiClient\Events\AccessTokenObtained;
 use Stoyantodorov\ApiClient\Events\AccessTokenRefreshed;
-use Stoyantodorov\ApiClient\Interfaces\TokenFromConfigFactoryInterface;
+use Stoyantodorov\ApiClient\Factories\TokenFromConfigFactory;
 use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 use Stoyantodorov\ApiClient\Tests\Traits\TokenTests;
@@ -23,7 +23,7 @@ class TokenFromConfigFactoryTest extends TestCase
     public function returns_the_same_token_when_that_has_been_sent_to_the_factory(): void
     {
         $this->tokenConfigurationsBase($this->getPath($this->accessTokenRequestPath), false);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create(
+        $service = TokenFromConfigFactory::create(
             hasRefreshTokenRequest: false,
             token: $this->tokenValue,
         );
@@ -36,7 +36,7 @@ class TokenFromConfigFactoryTest extends TestCase
     {
         $path = $this->getPath($this->accessTokenRequestPath);
         $this->tokenConfigurationsBase($path, false);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
         Http::fake([$path => Http::response(['access_token' => $this->tokenValue])]);
 
         $this->assertSame($this->tokenValue, $service->get());
@@ -48,7 +48,7 @@ class TokenFromConfigFactoryTest extends TestCase
     {
         $path = $this->getPath($this->accessTokenRequestPath);
         $this->tokenConfigurationsBase($path, false);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
         Http::fake([$path => Http::response(['access_token' => $this->tokenValue])]);
 
         $service->get();
@@ -60,7 +60,7 @@ class TokenFromConfigFactoryTest extends TestCase
     {
         $path = $this->getPath($this->accessTokenRequestPath);
         $this->tokenConfigurationsBase($path, false);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
         Http::fake([$path => Http::response(['access_token' => $this->tokenValue])]);
 
         $service->get();
@@ -72,7 +72,7 @@ class TokenFromConfigFactoryTest extends TestCase
     {
         $path = $this->getPath($this->accessTokenRequestPath);
         $this->tokenConfigurationsBase($path, false);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
 
         Http::fake([$path => Http::response(['access_token' => $this->tokenValue])]);
 
@@ -85,7 +85,7 @@ class TokenFromConfigFactoryTest extends TestCase
     {
         $path = $this->getPath($this->accessTokenRequestPath);
         $this->tokenConfigurationsBase($path, false);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
         Http::fake([$path => Http::response(['access_token' => $this->tokenValue])]);
 
         $this->assertSame($this->tokenValue, $service->get());
@@ -105,13 +105,13 @@ class TokenFromConfigFactoryTest extends TestCase
     {
         $path = $this->getPath($this->accessTokenRequestPath);
         $this->tokenConfigurationsBase($path, true);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
 
         Http::fake([$path => Http::response(['access_token' => $this->tokenValue])]);
         Event::fake();
 
         $service->get();
-        Event::assertDispatched(AccessTokenReceived::class);
+        Event::assertDispatched(AccessTokenObtained::class);
     }
 
     /** @test */
@@ -119,13 +119,13 @@ class TokenFromConfigFactoryTest extends TestCase
     {
         $path = $this->getPath($this->accessTokenRequestPath);
         $this->tokenConfigurationsBase($path, false);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
 
         Http::fake([$path => Http::response(['access_token' => $this->tokenValue])]);
         Event::fake();
 
         $service->get();
-        Event::assertNotDispatched(AccessTokenReceived::class);
+        Event::assertNotDispatched(AccessTokenObtained::class);
     }
 
     /** @test */
@@ -135,7 +135,7 @@ class TokenFromConfigFactoryTest extends TestCase
         $this->tokenConfigurationsBase($path, false);
         $this->refreshTokenConfigurationsBase($path, false);
         $customToken = 'customToken';
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create(token: $customToken);
+        $service = TokenFromConfigFactory::create(token: $customToken);
 
         Http::fake([$path => Http::response(['access_token' => $this->refreshedTokenValue])]);
         $token = $service->get(true);
@@ -150,7 +150,7 @@ class TokenFromConfigFactoryTest extends TestCase
         $path = $this->getPath($this->refreshTokenRequestPath);
         $this->tokenConfigurationsBase($path, false);
         $this->refreshTokenConfigurationsBase($path, false);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
 
         Http::fake([$path => Http::response(['access_token' => $this->refreshedTokenValue])]);
 
@@ -164,7 +164,7 @@ class TokenFromConfigFactoryTest extends TestCase
         $path = $this->getPath($this->refreshTokenRequestPath);
         $this->tokenConfigurationsBase($path, false);
         $this->refreshTokenConfigurationsBase($path, false);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
 
         Http::fake([$path => Http::response(['access_token' => $this->refreshedTokenValue])]);
 
@@ -178,7 +178,7 @@ class TokenFromConfigFactoryTest extends TestCase
         $path = $this->getPath($this->refreshTokenRequestPath);
         $this->tokenConfigurationsBase($path, false);
         $this->refreshTokenConfigurationsBase($path, false);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
 
         Http::fake([$path => Http::response(['access_token' => $this->refreshedTokenValue])]);
 
@@ -192,7 +192,7 @@ class TokenFromConfigFactoryTest extends TestCase
         $path = $this->getPath($this->refreshTokenRequestPath);
         $this->tokenConfigurationsBase($path, false);
         $this->refreshTokenConfigurationsBase($path, false);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
 
         Http::fake([$path => Http::response(['access_token' => $this->refreshedTokenValue])]);
 
@@ -206,13 +206,13 @@ class TokenFromConfigFactoryTest extends TestCase
         $path = $this->getPath($this->refreshTokenRequestPath);
         $this->tokenConfigurationsBase($path, false);
         $this->refreshTokenConfigurationsBase($path, false);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
 
         Http::fake([$path => Http::response(['access_token' => $this->refreshedTokenValue])]);
         $this->assertSame($this->refreshedTokenValue, $service->get(true));
 
         $this->refreshTokenConfigurationsBase($path, false, ['data', 'access_token']);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
 
         $this->clearExistingFakes();
         Http::fake([$path => Http::response(['data' => ['access_token' => $this->refreshedTokenValue]])]);
@@ -225,7 +225,7 @@ class TokenFromConfigFactoryTest extends TestCase
         $path = $this->getPath($this->refreshTokenRequestPath);
         $this->tokenConfigurationsBase($path, true);
         $this->refreshTokenConfigurationsBase($path, true);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
 
         Http::fake([$path => Http::response(['access_token' => $this->refreshedTokenValue])]);
         Event::fake();
@@ -240,7 +240,7 @@ class TokenFromConfigFactoryTest extends TestCase
         $path = $this->getPath($this->refreshTokenRequestPath);
         $this->tokenConfigurationsBase($path, true);
         $this->refreshTokenConfigurationsBase($path, false);
-        $service = resolve(TokenFromConfigFactoryInterface::class)->create();
+        $service = TokenFromConfigFactory::create();
 
         Http::fake([$path => Http::response(['access_token' => $this->refreshedTokenValue])]);
         Event::fake();

@@ -2,7 +2,7 @@
 
 namespace Stoyantodorov\ApiClient\Tests\Unit\Factories;
 
-use Stoyantodorov\ApiClient\Interfaces\TokenFromConfigFactoryInterface;
+use Stoyantodorov\ApiClient\Factories\TokenFromConfigFactory;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 use Throwable;
 
@@ -14,14 +14,14 @@ class TokenFromConfigFactoryTest extends TestCase
     public function create_method_returns_token_interface(): void
     {
         $this->expectNotToPerformAssertions();
-        resolve(TokenFromConfigFactoryInterface::class)->create();
+        TokenFromConfigFactory::create();
     }
 
     /** @test */
     public function create_method_throws_error_when_receives_a_wrong_config_key(): void
     {
         $this->expectException(Throwable::class);
-        resolve(TokenFromConfigFactoryInterface::class)->create(configKey: $this->customConfigKey);
+        TokenFromConfigFactory::create(configKey: $this->customConfigKey);
 
     }
 
@@ -50,6 +50,6 @@ class TokenFromConfigFactoryTest extends TestCase
                 'tokenRequestsRetries' => 3,
             ]
         ]);
-        resolve(TokenFromConfigFactoryInterface::class)->create(configKey: $this->customConfigKey);
+        TokenFromConfigFactory::create(configKey: $this->customConfigKey);
     }
 }

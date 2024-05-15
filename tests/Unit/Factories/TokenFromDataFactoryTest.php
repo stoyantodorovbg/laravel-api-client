@@ -4,7 +4,7 @@ namespace Stoyantodorov\ApiClient\Tests\Unit\Factories;
 
 use Stoyantodorov\ApiClient\Data\RefreshTokenData;
 use Stoyantodorov\ApiClient\Data\TokenData;
-use Stoyantodorov\ApiClient\Interfaces\TokenFromDataFactoryInterface;
+use Stoyantodorov\ApiClient\Factories\TokenFromDataFactory;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 use Stoyantodorov\ApiClient\Tests\Traits\TokenTests;
 
@@ -27,6 +27,6 @@ class TokenFromDataFactoryTest extends TestCase
             body: $this->refreshTokenRequestBody,
         );
 
-        resolve(TokenFromDataFactoryInterface::class)->create($tokenData, $refreshTokenData);
+        TokenFromDataFactory::create($tokenData, $refreshTokenData);
     }
 }

@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Stoyantodorov\ApiClient\Data\RefreshTokenData;
 use Stoyantodorov\ApiClient\Data\TokenData;
-use Stoyantodorov\ApiClient\Events\AccessTokenReceived;
+use Stoyantodorov\ApiClient\Events\AccessTokenObtained;
 use Stoyantodorov\ApiClient\Events\AccessTokenRefreshed;
-use Stoyantodorov\ApiClient\Interfaces\TokenFromDataFactoryInterface;
+use Stoyantodorov\ApiClient\Factories\TokenFromDataFactory;
 use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
 use Stoyantodorov\ApiClient\Tests\Traits\TokenTests;
@@ -22,7 +22,7 @@ class TokenFromDataFactoryTest extends TestCase
     /** @test */
     public function returns_the_same_token_when_that_has_been_sent_to_the_factory(): void
     {
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($this->getPath($this->accessTokenRequestPath), $this->accessTokenRequestBody),
             token: $this->tokenValue,
         );
@@ -34,7 +34,7 @@ class TokenFromDataFactoryTest extends TestCase
     public function makes_request_to_the_right_url_when_retrieves_a_token(): void
     {
         $path = $this->getPath($this->accessTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->accessTokenRequestBody),
         );
 
@@ -48,7 +48,7 @@ class TokenFromDataFactoryTest extends TestCase
     public function sends_the_expected_body_when_retrieves_a_token(): void
     {
         $path = $this->getPath($this->accessTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->accessTokenRequestBody),
         );
 
@@ -62,7 +62,7 @@ class TokenFromDataFactoryTest extends TestCase
     public function sends_the_expected_headers_when_retrieves_a_token(): void
     {
         $path = $this->getPath($this->accessTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->accessTokenRequestBody, $this->headers),
         );
 
@@ -76,7 +76,7 @@ class TokenFromDataFactoryTest extends TestCase
     public function sends_the_expected_method_when_retrieves_a_token(): void
     {
         $path = $this->getPath($this->accessTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->accessTokenRequestBody),
         );
 
@@ -90,7 +90,7 @@ class TokenFromDataFactoryTest extends TestCase
     public function gets_the_token_from_the_provided_json_path(): void
     {
         $path = $this->getPath($this->accessTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->accessTokenRequestBody),
         );
 
@@ -111,7 +111,7 @@ class TokenFromDataFactoryTest extends TestCase
     public function fires_certain_event_when_receives_a_token(): void
     {
         $path = $this->getPath($this->accessTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->accessTokenRequestBody),
         );
 
@@ -119,14 +119,14 @@ class TokenFromDataFactoryTest extends TestCase
         Event::fake();
 
         $service->get();
-        Event::assertDispatched(AccessTokenReceived::class);
+        Event::assertDispatched(AccessTokenObtained::class);
     }
 
     /** @test */
     public function do_not_fire_event_when_receives_a_token(): void
     {
         $path = $this->getPath($this->accessTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->accessTokenRequestBody, dispatchEvent: false),
         );
 
@@ -134,14 +134,14 @@ class TokenFromDataFactoryTest extends TestCase
         Event::fake();
 
         $service->get();
-        Event::assertNotDispatched(AccessTokenReceived::class);
+        Event::assertNotDispatched(AccessTokenObtained::class);
     }
 
     /** @test */
     public function returns_the_token_from_the_response_instead_of_the_one_received_as_factory_parameter_when_refreshes(): void
     {
         $path = $this->getPath($this->refreshTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->accessTokenRequestBody),
             refreshTokenData: new RefreshTokenData($path, $this->refreshTokenRequestBody),
             token: $this->tokenValue,
@@ -156,7 +156,7 @@ class TokenFromDataFactoryTest extends TestCase
     public function makes_request_to_the_right_url_when_refreshes_a_token(): void
     {
         $path = $this->getPath($this->refreshTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->accessTokenRequestBody),
             refreshTokenData: new RefreshTokenData($path, $this->refreshTokenRequestBody),
         );
@@ -171,7 +171,7 @@ class TokenFromDataFactoryTest extends TestCase
     public function sends_the_expected_body_when_refreshes_a_token(): void
     {
         $path = $this->getPath($this->refreshTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->accessTokenRequestBody),
             refreshTokenData: new RefreshTokenData($path, $this->refreshTokenRequestBody),
         );
@@ -186,7 +186,7 @@ class TokenFromDataFactoryTest extends TestCase
     public function sends_the_expected_headers_when_refreshes_a_token(): void
     {
         $path = $this->getPath($this->refreshTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->accessTokenRequestBody, $this->headers),
             refreshTokenData: new RefreshTokenData($path, $this->refreshTokenRequestBody, $this->headers),
         );
@@ -201,7 +201,7 @@ class TokenFromDataFactoryTest extends TestCase
     public function sends_the_expected_method_when_refreshes_a_token(): void
     {
         $path = $this->getPath($this->refreshTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->accessTokenRequestBody),
             refreshTokenData: new RefreshTokenData($path, $this->refreshTokenRequestBody, $this->headers),
         );
@@ -216,7 +216,7 @@ class TokenFromDataFactoryTest extends TestCase
     public function gets_the_token_from_the_provided_json_path_when_refreshes(): void
     {
         $path = $this->getPath($this->refreshTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->accessTokenRequestBody),
             refreshTokenData: new RefreshTokenData($path, $this->refreshTokenRequestBody),
         );
@@ -224,7 +224,7 @@ class TokenFromDataFactoryTest extends TestCase
         Http::fake([$path => Http::response(['access_token' => $this->refreshedTokenValue])]);
         $this->assertSame($this->refreshedTokenValue, $service->get(true));
 
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->accessTokenRequestBody),
             refreshTokenData: new RefreshTokenData($path, $this->refreshTokenRequestBody, responseNestedKeys: ['data', 'access_token']),
         );
@@ -239,7 +239,7 @@ class TokenFromDataFactoryTest extends TestCase
     public function fires_certain_event_when_refreshes_a_token(): void
     {
         $path = $this->getPath($this->refreshTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->refreshTokenRequestBody),
             refreshTokenData: new RefreshTokenData($path, $this->refreshTokenRequestBody),
         );
@@ -255,7 +255,7 @@ class TokenFromDataFactoryTest extends TestCase
     public function do_not_fire_event_when_refreshes_a_token(): void
     {
         $path = $this->getPath($this->refreshTokenRequestPath);
-        $service = resolve(TokenFromDataFactoryInterface::class)->create(
+        $service = TokenFromDataFactory::create(
             tokenData: new TokenData($path, $this->refreshTokenRequestBody),
             refreshTokenData: new RefreshTokenData($path, $this->refreshTokenRequestBody, dispatchEvent: false),
         );

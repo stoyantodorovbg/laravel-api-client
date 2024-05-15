@@ -1,6 +1,6 @@
 # Laravel HTTP Facade wrapper
 
-This package provides a way to use Laravel HTTP facade with error handling, logging and events firing.
+This package provides a way to use Laravel HTTP facade with error handling, logging and events firing. There is also Token Service that makes requests to retrieve access token depending on stored configurations or received parameters.
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/stoyantodorov/laravel-api-client.svg?style=flat-square)](https://packagist.org/packages/stoyantodorov/laravel-api-client)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/stoyantodorov/laravel-api-client/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/stoyantodorov/laravel-api-client/actions?query=workflow%3Arun-tests+branch%3Amain)
@@ -15,15 +15,9 @@ This package provides a way to use Laravel HTTP facade with error handling, logg
 composer require stoyantodorov/laravel-api-client
 ```
 
-## Configuration
-
-You can publish the config file:
-
-```bash
-php artisan vendor:publish --tag="laravel-api-client-config"
-```
-
 ## Usage
+
+### HttpClient Service
 
 Resolve an HttpClient instance in a way that fits what you need, for example:
 
@@ -103,9 +97,151 @@ These configurations can be overridden through HttpClient setters:
 $apiClient->fireEventOnSuccess(false);
 ```
 
+### Token Service
+
+#### Factories
+
+There are two factories which instantiate **TokenService**. The first one sets configurations from **config** file:
+
+```php
+use Stoyantodorov\ApiClient\Factories\TokenFromConfigFactory;
+
+TokenFromConfigFactory::create();
+```
+When you are using it should set the relevant configurations in **api-client.php**:
+```php
+'tokenConfigurationsBase' => [
+        'accessTokenRequest' => [
+            'url' => '',
+            'body' => [],
+            'headers' => [],
+            'responseNestedKeys' => ['access_token'],
+            'method' => 'post',
+            'dispatchEvent' => true,
+        ],
+        'refreshTokenRequest' => [
+            'url' => '',
+            'body' => [],
+            'headers' => [],
+            'responseNestedKeys' => ['access_token'],
+            'method' => 'post',
+            'dispatchEvent' => true,
+        ],
+        'tokenRequestsRetries' => 3,
+    ],
+```
+
+The second factory sets configurations from data objects:
+
+```php
+use Stoyantodorov\ApiClient\Factories\TokenFromDataFactory;
+use Stoyantodorov\ApiClient\Data\TokenData;
+
+$tokenData new TokenData(
+            url: 'https://example-host/access-token',
+            body: ['username' => 'testValue', 'password' => 'testValue'],
+        );
+
+TokenFromDataFactory::create($tokenData);
+```
+
+When you are using an endpoint to refresh the token the factories should be instructed to send such configurations:
+
+```php
+TokenFromConfigFactory::create(hasRefreshTokenRequest: true);
+
+use Stoyantodorov\ApiClient\Data\RefreshTokenData;
+
+$refreshTokenData = new RefreshTokenData(
+            url: 'https://example-host/refresh-token',
+            body: ['refreshToken' => 'testValue'],
+        );
+TokenFromDataFactory::create(tokenData: $tokenData, refreshTokenData: $refreshTokenData);
+```
+
+You may add other configurations that Token service to use:
+```php
+TokenFromConfigFactory::create(configKey: 'anotherApiConfigurations');
+```
+
+If you have an already received a token, can send it to both factories as optional parameter:
+```php
+TokenFromConfigFactory::>create(token: 'someValueOrNull');
+TokenFromDataFactory::create(token: 'someValueOrNull');
+```
+
+#### Obtain a token
+
+**get** method sends a token request:
+```php
+$service->get();
+```
+
+If the service is instantiated with an already obtained token the method returns it instead of sending a new request.
+
+The same method can also send a request that refreshes the token:
+```php
+$service->get(refresh: true);
+```
+
+The JSON path to the token in the response should be set in **config** file:
+```php
+'responseNestedKeys' => ['data', 'access_token'],
+```
+or in **TokenData** and **RefreshTokenData**
+```php
+new TokenData(
+            url: 'https://example-host/access-token',
+            body: ['username' => 'testValue', 'password' => 'testValue'],
+            responseNestedKeys: ['data', 'access_token'],
+        );
+new RefreshTokenData(
+            url: 'https://example-host/refresh-token',
+            body: ['refreshToken' => 'testValue'],
+            responseNestedKeys: ['data', 'access_token'],
+        );
+```
+
+When you need to access the response can subscribe for the events which are fired by default:
+```php
+use Stoyantodorov\ApiClient\Events\AccessTokenObtained;
+
+public function handle(AccessTokenObtained $event): void
+{
+    $response = $vent->response;
+}
+```
+```php
+use Stoyantodorov\ApiClient\Events\AccessTokenRefreshed;
+
+public function handle(AccessTokenRefreshed $event): void
+{
+    $response = $vent->response;
+}
+```
+
+If you aren't using these events may switch them off from the config file:
+```php
+'dispatchEvent' => true,
+```
+or **TokenData** and **RefreshTokenData**:
+```php
+new TokenData(
+            url: 'https://example-host/access-token',
+            body: ['username' => 'testValue', 'password' => 'testValue'],
+            dispatchEvent: false,
+        );
+new RefreshTokenData(
+            url: 'https://example-host/refresh-token',
+            body: ['refreshToken' => 'testValue'],
+            dispatchEvent: false,
+        );
+```
 
 ## API Reference
+
 ### HttpClientInterface
+
 ```php
     /**
      * Base configuration for PendingRequest
@@ -314,7 +450,7 @@ $apiClient->fireEventOnSuccess(false);
     public function logOnConnectionException(bool $value): self;
 ```
 
-## Enums
+### Enums
 
 ```php
 enum HttpMethod: string
@@ -353,6 +489,63 @@ enum HttpClientRequestMethod: string
     case DELETE = 'delete';
     case SEND = 'send';
 }
+```
+
+### TokenFromConfigFactoryInterface
+
+```php
+    /**
+     * Instantiate TokenInterface
+     * When receives $token it is set in TokenInterface instance
+     * $hasRefreshTokenRequest determines instantiating RefreshTokenData
+     * $configKey refers to token configurations in the config file
+     *
+     * @param bool        $hasRefreshTokenRequest
+     * @param string      $configKey
+     * @param string|null $token = null
+     * @return TokenInterface
+     */
+    public static function create(
+                              bool $hasRefreshTokenRequest = true,
+                              string $configKey = 'tokenConfigurationsBase',
+                              #[SensitiveParameter] string|null $token = null,
+    ): TokenInterface;
+```
+
+### TokenFromDataFactoryInterface
+
+```php
+    /**
+     * Instantiate TokenInterface
+     * When receives $token it is set in TokenInterface instance
+     *
+     * @param TokenData             $tokenData
+     * @param RefreshTokenData|null $refreshTokenData = null
+     * @param int                   $retries = 3
+     * @param string|null           $token = null
+     * @return TokenInterface
+     */
+    public static function create(
+        #[SensitiveParameter] TokenData             $tokenData,
+        #[SensitiveParameter] RefreshTokenData|null $refreshTokenData = null,
+                              int                   $retries = 3,
+        string|null                                  $token = null,
+    ): TokenInterface;
+```
+
+### TokenInterface
+
+```php
+/**
+    /**
+     * Get Access Token
+     * When it's missing request it
+     * When $refresh is true make a request to refresh the token
+     *
+     * @param bool $refresh = false
+     * @return string
+     */
+    public function get(bool $refresh = false): string;
 ```
 
 ## Testing

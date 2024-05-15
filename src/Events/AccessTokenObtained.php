@@ -5,7 +5,7 @@ namespace Stoyantodorov\ApiClient\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Http\Client\Response;
 
-class AccessTokenReceived
+class AccessTokenObtained
 {
     use Dispatchable;
 
