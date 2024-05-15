@@ -13,10 +13,10 @@ use Stoyantodorov\ApiClient\Token;
 class TokenFromDataFactory implements TokenFromDataFactoryInterface
 {
     public static function create(
-        #[SensitiveParameter] TokenData        $tokenData,
-        #[SensitiveParameter] RefreshTokenData $refreshTokenData,
-                              int              $retries = 3,
-        #[SensitiveParameter] string|null      $token = null,
+        #[SensitiveParameter] TokenData             $tokenData,
+        #[SensitiveParameter] RefreshTokenData|null $refreshTokenData = null,
+                              int                   $retries = 3,
+        #[SensitiveParameter] string|null           $token = null,
     ): TokenInterface
     {
         return new Token(

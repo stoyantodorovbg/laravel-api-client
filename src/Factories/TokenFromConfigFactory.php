@@ -30,7 +30,7 @@ class TokenFromConfigFactory implements TokenFromConfigFactoryInterface
             url: config("api-client.{$configKey}.refreshTokenRequest.url"),
             body: config("api-client.{$configKey}.refreshTokenRequest.body"),
             headers: config("api-client.{$configKey}.refreshTokenRequest.headers"),
-            responseNestedKeys: config("api-client.{$configKey}.accessTokenRequest.responseNestedKeys"),
+            responseNestedKeys: config("api-client.{$configKey}.refreshTokenRequest.responseNestedKeys"),
             method: config("api-client.{$configKey}.refreshTokenRequest.method"),
             dispatchEvent: config("api-client.{$configKey}.refreshTokenRequest.dispatchEvent"),
         ) : null;
