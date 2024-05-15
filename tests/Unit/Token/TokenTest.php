@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Stoyantodorov\ApiClient\Data\RefreshTokenData;
 use Stoyantodorov\ApiClient\Data\TokenData;
-use Stoyantodorov\ApiClient\Events\AccessTokenReceived;
+use Stoyantodorov\ApiClient\Events\AccessTokenObtained;
 use Stoyantodorov\ApiClient\Events\AccessTokenRefreshed;
 use Stoyantodorov\ApiClient\Interfaces\HttpClientInterface;
 use Stoyantodorov\ApiClient\Tests\TestCase;
@@ -125,7 +125,7 @@ class TokenTest extends TestCase
         Event::fake();
 
         $service->get();
-        Event::assertDispatched(AccessTokenReceived::class);
+        Event::assertDispatched(AccessTokenObtained::class);
     }
 
     /** @test */
@@ -141,7 +141,7 @@ class TokenTest extends TestCase
         Event::fake();
 
         $service->get();
-        Event::assertNotDispatched(AccessTokenReceived::class);
+        Event::assertNotDispatched(AccessTokenObtained::class);
     }
 
     /** @test */

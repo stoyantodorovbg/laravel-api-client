@@ -10,7 +10,7 @@ use Stoyantodorov\ApiClient\Tests\TestCase;
 
 class FailedRequestEventTest extends TestCase
 {
-    private string $url = 'https://dummy-host/test';
+    private string $url = 'https://example-host/test';
     private array $options = ['test' => '123'];
 
     /** @test */

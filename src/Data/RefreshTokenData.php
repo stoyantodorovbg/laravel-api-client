@@ -4,7 +4,7 @@ namespace Stoyantodorov\ApiClient\Data;
 
 use SensitiveParameter;
 
-readonly class RefreshTokenData extends \Stoyantodorov\ApiClient\Data\TokenData
+readonly class RefreshTokenData
 {
     public function __construct(
                               public string $url,

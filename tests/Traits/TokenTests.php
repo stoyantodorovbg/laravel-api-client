@@ -6,7 +6,7 @@ trait TokenTests
 {
     private string $tokenValue = 'testTokenValue';
     private string $refreshedTokenValue = 'refreshedTokenValue';
-    private string $host = 'https://dummy-host/test';
+    private string $host = 'https://example-host/test';
     private array $headers = ['accept' => 'application/vnd.cloudlx.v1+json'];
     private string $method = 'post';
     private string $accessTokenRequestPath = 'token';
